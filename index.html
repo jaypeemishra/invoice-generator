@@ -1,0 +1,1607 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Invoice Generator – Pristine Aesthetics Ltd</title>
+  <meta name="description" content="Professional invoice generator for Pristine Aesthetics Ltd – Swati Mishra, Dental Hygienist." />
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- html2pdf CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { 
+            inter: ['Inter', 'sans-serif'],
+            playfair: ['"Playfair Display"', 'serif']
+          },
+          colors: {
+            brand: {
+              50:  '#f0f7f7',
+              100: '#e1efef',
+              500: '#D9A5A0', // Champagne Pink (Accent)
+              600: '#024544',
+              700: '#023433', // Obsidian Green (Primary)
+              900: '#011e1d',
+            }
+          }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    /* ── Global ── */
+    body { font-family: 'Inter', sans-serif; background: #f8f5f0; color: #0f172a; }
+
+    /* ── Tab underline animation ── */
+    .tab-btn { position: relative; transition: color .2s; cursor: pointer; color: #64748b; }
+    .tab-btn::after {
+      content: '';
+      position: absolute; bottom: -2px; left: 0; right: 0; height: 3px;
+      background: #D9A5A0; border-radius: 2px;
+      transform: scaleX(0); transition: transform .25s ease;
+    }
+    .tab-btn.active { color: #023433; font-weight: 600; }
+    .tab-btn.active::after { transform: scaleX(1); }
+
+    /* ── Glass card ── */
+    .glass {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(2, 52, 51, 0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+    }
+
+    /* ── Input focus ring ── */
+    input, select, textarea {
+      background: #ffffff !important; color: #023433 !important;
+      border: 1px solid #cbd5e1;
+      padding: 0.5rem 0.75rem;
+      border-radius: 0.5rem;
+      transition: all .2s;
+    }
+    input:focus, select:focus, textarea:focus {
+      outline: none; border-color: #D9A5A0;
+      box-shadow: 0 0 0 3px rgba(217, 165, 160, 0.2);
+    }
+
+    /* ── Invoice print area (used by html2pdf) ── */
+    #invoice-preview {
+      background: #fff; color: #111;
+      font-family: 'Inter', sans-serif;
+      font-size: 13px; line-height: 1.6;
+    }
+    #invoice-preview table { width: 100%; border-collapse: collapse; }
+    #invoice-preview th, #invoice-preview td {
+      border: 1px solid #e2e8f0; padding: 8px 10px; text-align: left;
+    }
+    #invoice-preview th { background: #f8fafc; font-weight: 600; color: #023433; }
+    #invoice-preview .inv-header { border-bottom: 3px solid #D9A5A0; padding-bottom: 20px; margin-bottom: 20px; }
+    #invoice-preview .inv-footer { border-top: 2px solid #e5e7eb; margin-top: 20px; padding-top: 14px; font-size: 12px; color: #555; }
+
+    /* ── Surgery badge ── */
+    .surgery-card { transition: transform .15s, box-shadow .15s; background: white; }
+    .surgery-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(2, 52, 51, 0.08); }
+
+    /* ── History row ── */
+    .hist-row:hover { background: rgba(217, 165, 160, 0.1); }
+
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 6px; } 
+    ::-webkit-scrollbar-track { background: #f8f5f0; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+<!-- ══════════ HEADER ══════════ -->
+<header class="pt-10 pb-6">
+  <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
+    <div class="flex items-center gap-4">
+      <div class="w-12 h-12 flex-shrink-0">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#D9A5A0" stroke-width="1.5">
+          <path d="M12 2L2 12l10 10 10-10L12 2z" stroke-linecap="square"></path>
+          <path d="M12 6L6 12l6 6 6-6L12 6z" stroke-linecap="square"></path>
+        </svg>
+      </div>
+      <div>
+        <h1 class="text-3xl font-playfair font-bold text-brand-700 tracking-wider">PRISTINE</h1>
+        <p class="text-[10px] text-brand-500 uppercase tracking-[0.3em] font-light -mt-1 pl-0.5">Aesthetics &amp; Wellness</p>
+      </div>
+    </div>
+    <nav class="flex gap-8">
+      <button class="tab-btn active text-sm font-medium" data-tab="surgeries">Surgeries</button>
+      <button class="tab-btn text-sm font-medium" data-tab="create">Invoices</button>
+      <button class="tab-btn text-sm font-medium" data-tab="history">History</button>
+      <button class="tab-btn text-sm font-medium" data-tab="log">Daily Log</button>
+      <button class="tab-btn text-sm font-medium" data-tab="settings">Settings</button>
+    </nav>
+  </div>
+</header>
+
+<!-- ══════════ MAIN ══════════ -->
+<main class="max-w-5xl mx-auto px-4 py-8">
+
+  <!-- TABS NAV -->
+  <nav class="flex flex-wrap gap-4 sm:gap-6 border-b border-slate-200 mb-8">
+    <button class="tab-btn active pb-3 text-sm font-semibold tracking-wide" data-tab="surgeries">🏥 Surgeries</button>
+    <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="log">📋 Daily Log</button>
+    <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="create">📄 Create Invoice</button>
+    <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="history">📁 History</button>
+    <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="settings">⚙️ Settings</button>
+  </nav>
+
+  <!-- ████ TAB: SURGERIES ████ -->
+  <section id="tab-surgeries" class="tab-pane">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-brand-700">Surgery Management</h2>
+      <button id="btn-add-surgery" class="bg-brand-700 hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition shadow-sm">+ Add Surgery</button>
+    </div>
+
+    <!-- Surgery Form (hidden by default) -->
+    <div id="surgery-form-wrap" class="glass rounded-2xl p-6 mb-6 hidden">
+      <h3 id="surgery-form-title" class="text-base font-semibold mb-4 text-brand-700">New Surgery</h3>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Surgery Name *</label>
+          <input id="sf-name" type="text" placeholder="e.g. High Field Dental" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Address *</label>
+          <input id="sf-address" type="text" placeholder="Full address" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Contact / Email</label>
+          <input id="sf-contact" type="text" placeholder="Optional" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Default Invoice Type</label>
+          <select id="sf-type" class="w-full rounded-lg px-3 py-2 text-sm">
+            <option value="percent">Type A – % Share</option>
+            <option value="rate">Type B – Day / Hour Rate</option>
+          </select>
+        </div>
+
+        <!-- Type A pricing defaults -->
+        <div id="sf-group-percent" class="contents">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Default Charge per Patient (£) <span class="text-slate-400">(Type A)</span></label>
+            <input id="sf-default-charge" type="number" min="0" step="0.01" placeholder="e.g. 120.00" class="w-full rounded-lg px-3 py-2 text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Commission % <span class="text-slate-400">(Type A, default 35)</span></label>
+            <input id="sf-share-percent" type="number" min="0" max="100" step="0.1" placeholder="35" class="w-full rounded-lg px-3 py-2 text-sm" />
+          </div>
+        </div>
+
+        <!-- Type B pricing defaults -->
+        <div id="sf-group-rate" class="contents hidden">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Default Hourly Rate (£) <span class="text-slate-400">(Type B)</span></label>
+            <input id="sf-default-rate" type="number" min="0" step="0.5" placeholder="e.g. 35" class="w-full rounded-lg px-3 py-2 text-sm" />
+          </div>
+        </div>
+      </div>
+      <div class="flex gap-3 mt-5">
+        <button id="btn-save-surgery" class="bg-brand-700 hover:bg-brand-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition">Save Surgery</button>
+        <button id="btn-cancel-surgery" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2 rounded-lg text-sm font-medium transition">Cancel</button>
+      </div>
+      <div id="surgery-form-err" class="text-red-500 text-xs mt-2 hidden"></div>
+    </div>
+
+    <!-- Surgery List -->
+    <div id="surgery-list" class="grid sm:grid-cols-2 gap-4">
+      <p class="text-slate-500 text-sm col-span-2" id="no-surgeries-msg">No surgeries saved yet. Click "Add Surgery" to begin.</p>
+    </div>
+  </section>
+
+  <!-- ████ TAB: CREATE INVOICE ████ -->
+  <section id="tab-create" class="tab-pane hidden">
+    <h2 class="text-xl font-bold text-brand-700 mb-6">Create Invoice</h2>
+
+    <div class="glass rounded-2xl p-6 mb-6 space-y-5">
+      <!-- Invoice Meta -->
+      <div class="grid sm:grid-cols-3 gap-4">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Invoice #</label>
+          <input id="inv-number" type="text" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Invoice Date</label>
+          <input id="inv-date" type="date" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Period / Month</label>
+          <input id="inv-period" type="text" placeholder="e.g. July 2025" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+      </div>
+
+      <!-- Select Surgery -->
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Select Surgery *</label>
+          <select id="inv-surgery" class="w-full rounded-lg px-3 py-2 text-sm">
+            <option value="">-- Choose Surgery --</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Invoice Type *</label>
+          <select id="inv-type" class="w-full rounded-lg px-3 py-2 text-sm">
+            <option value="percent">Type A – % Share (35%)</option>
+            <option value="rate">Type B – Day / Hour Rate</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Surgery info banner: shown after a surgery is selected -->
+      <div id="surgery-info-banner" class="hidden rounded-xl px-4 py-3 text-xs border border-brand-500/30"
+           style="background:rgba(217, 165, 160, 0.08);">
+        <div class="flex flex-wrap gap-x-6 gap-y-1 items-center">
+          <span class="text-brand-700 font-semibold" id="sib-name"></span>
+          <span class="text-slate-600" id="sib-address"></span>
+          <span id="sib-rate-info" class="font-mono text-brand-700 font-bold"></span>
+        </div>
+        <p class="text-slate-500 mt-1 text-xs" id="sib-hint"></p>
+      </div>
+
+      <!-- TYPE A: % Share -->
+      <div id="section-percent" class="space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <h3 class="text-sm font-semibold text-brand-700">Type A – Percentage Share</h3>
+          <div class="flex gap-2">
+            <button id="btn-import-logs-percent" class="text-xs bg-brand-700 hover:bg-brand-600 text-white px-3 py-1.5 rounded-lg transition">📋 Import from Logs</button>
+            <button id="btn-add-row" class="text-xs bg-white border border-brand-500 text-brand-500 hover:bg-brand-50 px-3 py-1.5 rounded-lg transition">+ Add Row</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto rounded-xl">
+          <table class="w-full text-xs text-slate-700">
+            <thead>
+              <tr class="bg-brand-50 text-brand-700">
+                <th class="px-3 py-2 text-left">Date</th>
+                <th class="px-3 py-2 text-left">No. Patients</th>
+                <th class="px-3 py-2 text-left">Treatment Charge (£)</th>
+                <th class="px-3 py-2 text-left">Total Earning (£)</th>
+                <th id="th-due-pct" class="px-3 py-2 text-left">Payment Due (£)</th>
+                <th class="px-3 py-2"></th>
+              </tr>
+            </thead>
+            <tbody id="percent-rows"></tbody>
+            <tfoot>
+              <tr class="bg-slate-100 font-semibold text-slate-800">
+                <td colspan="3" class="px-3 py-2">Totals</td>
+                <td class="px-3 py-2" id="total-earning">£0.00</td>
+                <td class="px-3 py-2" id="total-due">£0.00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- TYPE B: Day/Hour Rate -->
+      <div id="section-rate" class="space-y-4 hidden">
+        <h3 class="text-sm font-semibold text-brand-700">Type B – Day / Hour Rate</h3>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <span class="text-xs text-slate-500">Add work sessions</span>
+          <div class="flex gap-2">
+            <button id="btn-import-logs-rate" class="text-xs bg-brand-700 hover:bg-brand-600 text-white px-3 py-1.5 rounded-lg transition">📋 Import from Logs</button>
+            <button id="btn-add-session" class="text-xs bg-white border border-brand-500 text-brand-500 hover:bg-brand-50 px-3 py-1.5 rounded-lg transition">+ Add Session</button>
+          </div>
+        </div>
+        <div class="overflow-x-auto rounded-xl">
+          <table class="w-full text-xs text-slate-700">
+            <thead>
+              <tr class="bg-brand-50 text-brand-700">
+                <th class="px-3 py-2 text-left">Date</th>
+                <th class="px-3 py-2 text-left">Start Time</th>
+                <th class="px-3 py-2 text-left">End Time</th>
+                <th class="px-3 py-2 text-left">Total Hours</th>
+                <th class="px-3 py-2 text-left">Rate (£/hr)</th>
+                <th class="px-3 py-2 text-left">Amount (£)</th>
+                <th class="px-3 py-2"></th>
+              </tr>
+            </thead>
+            <tbody id="rate-rows"></tbody>
+            <tfoot>
+              <tr class="bg-slate-100 font-semibold text-slate-800">
+                <td colspan="3" class="px-3 py-2">Totals</td>
+                <td class="px-3 py-2" id="total-hours">0.00 hrs</td>
+                <td></td>
+                <td class="px-3 py-2" id="total-rate-amount">£0.00</td>
+                <td></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div>
+        <label class="block text-xs text-slate-500 mb-1">Notes (optional)</label>
+        <textarea id="inv-notes" rows="2" placeholder="Additional notes…" class="w-full rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+      </div>
+
+      <!-- Actions -->
+      <div class="flex flex-wrap gap-3 pt-2">
+        <button id="btn-preview" class="bg-brand-700 hover:bg-brand-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition shadow-md">👁 Preview Invoice</button>
+        <button id="btn-save-draft" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2 rounded-lg text-sm font-medium transition">💾 Save Draft</button>
+        <button id="btn-clear" onclick="showConfirm('Clear this invoice form?', clearInvoiceForm)" class="bg-slate-100 hover:bg-red-100 text-slate-500 hover:text-red-700 px-5 py-2 rounded-lg text-sm font-medium transition">🗑 Clear</button>
+      </div>
+      <div id="create-msg" class="text-xs mt-1 hidden"></div>
+    </div>
+  </section>
+
+  <!-- ████ TAB: HISTORY ████ -->
+  <section id="tab-history" class="tab-pane hidden">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-brand-700">Invoice History</h2>
+      <button id="btn-clear-history" class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg transition">Clear All</button>
+    </div>
+    <div id="history-list" class="glass rounded-2xl overflow-hidden">
+      <p id="no-history-msg" class="text-slate-500 text-sm p-6">No finalised invoices yet.</p>
+    </div>
+  </section>
+
+  <!-- ████ TAB: DAILY LOG ████ -->
+  <section id="tab-log" class="tab-pane hidden">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-xl font-bold text-brand-700">Daily Log</h2>
+      <p class="text-xs text-slate-500">Record your work each day – import into any invoice later.</p>
+    </div>
+
+    <!-- Log Entry Form -->
+    <div class="glass rounded-2xl p-6 mb-6 space-y-4">
+      <h3 class="text-sm font-semibold text-brand-700">Add Log Entry</h3>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Surgery *</label>
+          <select id="log-surgery" class="w-full rounded-lg px-3 py-2 text-sm">
+            <option value="">-- Choose --</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Date *</label>
+          <input id="log-date" type="date" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div id="log-field-patients">
+          <label class="block text-xs text-slate-500 mb-1">No. of Patients</label>
+          <input id="log-patients" type="number" min="0" placeholder="0" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div id="log-field-charge">
+          <label class="block text-xs text-slate-500 mb-1">Charge per patient (£)</label>
+          <input id="log-charge" type="number" min="0" step="0.01" placeholder="0.00" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div id="log-field-start" class="hidden">
+          <label class="block text-xs text-slate-500 mb-1">Start Time</label>
+          <input id="log-start" type="time" value="08:30" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div id="log-field-end" class="hidden">
+          <label class="block text-xs text-slate-500 mb-1">End Time</label>
+          <input id="log-end" type="time" value="16:30" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div id="log-field-rate" class="hidden">
+          <label class="block text-xs text-slate-500 mb-1">Rate (£/hr)</label>
+          <input id="log-rate" type="number" min="0" step="0.5" value="35" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div class="sm:col-span-2">
+          <label class="block text-xs text-slate-500 mb-1">Notes</label>
+          <input id="log-notes" type="text" placeholder="Optional notes…" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+      </div>
+      <div id="log-calc-preview" class="text-xs text-brand-700 font-mono font-bold hidden bg-brand-50 px-3 py-2 rounded-lg border border-brand-500/20"></div>
+      <div class="flex gap-3 pt-1">
+        <button id="btn-save-log" class="bg-brand-700 hover:bg-brand-600 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition shadow-md">+ Save Entry</button>
+      </div>
+      <div id="log-msg" class="text-xs font-semibold mt-2 hidden"></div>
+    </div>
+
+    <!-- Log Filter -->
+    <div class="glass rounded-2xl p-4 mb-4 flex flex-wrap gap-4 items-end border-none" style="background:#f0e9e7;">
+      <div>
+        <label class="block text-xs text-brand-700 font-bold mb-1">Filter by Surgery</label>
+        <select id="log-filter-surgery" class="rounded-lg px-3 py-2 text-sm border-none shadow-sm">
+          <option value="">All Surgeries</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-xs text-brand-700 font-bold mb-1">Month</label>
+        <input id="log-filter-month" type="month" class="rounded-lg px-3 py-2 text-sm border-none shadow-sm" />
+      </div>
+      <button id="btn-apply-log-filter" class="bg-brand-700 hover:bg-brand-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition">Apply</button>
+      <button id="btn-clear-log-filter" class="text-brand-700 hover:underline text-xs font-medium">Clear filter</button>
+    </div>
+
+    <!-- Log Table -->
+    <div id="log-table-wrap" class="glass rounded-2xl overflow-hidden">
+      <p id="no-log-msg" class="text-slate-500 text-sm p-6">No log entries yet.</p>
+    </div>
+  </section>
+
+  <!-- ████ TAB: SETTINGS ████ -->
+  <section id="tab-settings" class="tab-pane hidden">
+    <h2 class="text-xl font-bold text-brand-700 mb-6">Settings</h2>
+    
+    <div class="glass rounded-2xl p-6 max-w-md">
+      <h3 class="text-sm font-semibold text-brand-700 mb-4">Change Access Password</h3>
+      <div class="space-y-4">
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">New Password</label>
+          <input id="set-new-pw" type="password" placeholder="Min 4 characters" class="w-full" />
+        </div>
+        <button id="btn-change-pw" class="bg-brand-700 hover:bg-brand-600 text-white w-full py-2.5 rounded-xl text-sm font-medium transition shadow-md">Update Password</button>
+      </div>
+      <div id="set-pw-msg" class="text-xs mt-2 hidden"></div>
+    </div>
+  </section>
+
+</main>
+
+  <!-- LOGIN OVERLAY -->
+  <div id="login-overlay" class="fixed inset-0 bg-[#f8f5f0] z-[200] flex flex-col items-center justify-center p-6 hidden">
+    <div class="mb-12 flex flex-col items-center text-center">
+      ${BRAND.logoSvg}
+      <h1 class="font-playfair text-3xl text-brand-700 mt-4 tracking-wider uppercase">PRISTINE</h1>
+      <p class="text-[10px] uppercase tracking-[0.3em] text-brand-500 font-medium">Aesthetics & Wellness</p>
+    </div>
+    
+    <div class="glass rounded-3xl p-8 w-full max-w-sm shadow-2xl flex flex-col items-center border border-brand-500/10">
+      <h3 class="text-lg font-bold text-brand-700 mb-6">Restricted Access</h3>
+      <div class="w-full space-y-4">
+        <div>
+          <label class="block text-xs text-slate-500 mb-2 font-semibold">Enter Password</label>
+          <input id="login-pw" type="password" placeholder="••••••••" class="w-full text-center text-lg tracking-widest py-3 border-2 border-brand-500/20 focus:border-brand-500 transition-all rounded-2xl" />
+        </div>
+        <button id="btn-login" class="bg-brand-700 hover:bg-brand-600 text-white w-full py-3.5 rounded-2xl text-sm font-bold tracking-widest uppercase transition shadow-xl hover:translate-y-[-2px]">Unlock App</button>
+      </div>
+      <p id="login-err" class="text-red-500 text-xs mt-4 hidden font-medium"></p>
+      <p class="text-slate-400 text-[10px] mt-8 uppercase tracking-widest font-bold">Secure Access Portal</p>
+    </div>
+  </div>
+
+  <!-- INVOICE PREVIEW MODAL -->
+  <div id="modal-overlay" class="fixed inset-0 bg-black/70 z-50 flex items-start justify-center pt-8 px-4 hidden overflow-y-auto">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mb-8">
+      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
+        <h3 class="text-gray-800 font-bold text-lg">Invoice Preview</h3>
+        <div class="flex gap-2">
+          <button id="btn-download-pdf" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">⬇ Download PDF</button>
+          <button id="btn-finalise" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">✅ Finalise & Save</button>
+          <button id="btn-close-modal" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition">✕ Close</button>
+        </div>
+      </div>
+      <div id="invoice-preview" class="p-8"></div>
+    </div>
+  </div>
+
+  <!-- CUSTOM CONFIRM MODAL -->
+  <div id="confirm-modal" class="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center hidden p-4">
+    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
+      <h3 id="confirm-msg" class="text-lg font-bold text-slate-800 mb-4">Are you sure?</h3>
+      <div class="flex gap-3">
+        <button id="btn-confirm-cancel" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 rounded-lg font-medium">Cancel</button>
+        <button id="btn-confirm-yes" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium">Yes</button>
+      </div>
+    </div>
+  </div>
+
+<!-- ══════════ SCRIPT ══════════ -->
+<script>
+// ─────────────────────────────────────────────────────────────────────────────
+// CONSTANTS & BRANDING
+// ─────────────────────────────────────────────────────────────────────────────
+const BRAND = {
+  name    : 'Pristine Aesthetics Ltd',
+  address : '90 King Harolds Way, Bexleyheath, DA7 5QZ',
+  ref     : 'Swati Mishra / Dental Hygienist / GDC Number 286837',
+  bank    : 'Tide Bank',
+  sortCode: '04-06-05',
+  account : '14424579',
+  payee   : 'Pristine Aesthetics Ltd',
+  primary : '#023433',
+  accent  : '#D9A5A0',
+  logoSvg : `<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#D9A5A0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 2L2 12l10 10 10-10L12 2z"></path>
+                <path d="M12 6L6 12l6 6 6-6L12 6z"></path>
+             </svg>`
+};
+
+const LS = {
+  SURGERIES : 'pa_surgeries',
+  INVOICES  : 'pa_invoices',
+  DRAFT     : 'pa_draft',
+  LOGS      : 'pa_logs',
+  AUTH      : 'pa_auth'
+};
+
+const FILE_TYPE = {
+  [LS.SURGERIES]: 'surgeries',
+  [LS.INVOICES] : 'invoices',
+  [LS.LOGS]     : 'logs',
+  [LS.DRAFT]    : 'draft',
+};
+
+const API_URL = 'api.php';
+const DEBUG   = true;
+
+// ─────────────────────────────────────────────────────────────────────────────
+// UTILITY HELPERS
+// ─────────────────────────────────────────────────────────────────────────────
+
+const dbg = (...args) => DEBUG && console.debug('[InvGen]', ...args);
+
+const showMsg = (el, text, type = 'info') => {
+  el.textContent = text;
+  el.className = `text-xs mt-1 ${type === 'error' ? 'text-red-400' : 'text-green-400'}`;
+  el.classList.remove('hidden');
+  setTimeout(() => el.classList.add('hidden'), 3500);
+};
+
+const gbp = n => `£${parseFloat(n || 0).toFixed(2)}`;
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+
+const lsGet = key => {
+  try { return JSON.parse(localStorage.getItem(key)) || []; }
+  catch { return []; }
+};
+
+const lsSet = (key, val) => {
+  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) { dbg('lsSet error', e); }
+  syncToFile(key, val);
+};
+
+const syncToFile = async (key, val) => {
+  const type = FILE_TYPE[key];
+  if (!type) return;
+  const auth = localStorage.getItem(LS.AUTH);
+  try {
+    const res = await fetch(`${API_URL}?type=${type}`, {
+      method : 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Auth': auth || '' },
+      body   : JSON.stringify(val),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    dbg(`Synced "${type}" to file.`);
+  } catch (err) {
+    dbg(`syncToFile failed for "${type}":`, err.message);
+  }
+};
+
+const loadFromFile = async key => {
+  const type = FILE_TYPE[key];
+  if (!type) return lsGet(key);
+  const auth = localStorage.getItem(LS.AUTH);
+  try {
+    const res  = await fetch(`${API_URL}?type=${type}`, {
+      headers: { 'X-Auth': auth || '' }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    localStorage.setItem(key, JSON.stringify(data));
+    dbg(`Loaded "${type}" from file.`);
+    return data;
+  } catch (err) {
+    dbg(`loadFromFile failed for "${type}", falling back to localStorage:`, err.message);
+    return lsGet(key);
+  }
+};
+
+const timeToHours = (start, end) => {
+  const [sh, sm] = start.split(':').map(Number);
+  const [eh, em] = end.split(':').map(Number);
+  const total = (eh * 60 + em) - (sh * 60 + sm);
+  return total > 0 ? total / 60 : 0;
+};
+
+// ── AUTHENTICATION ──
+const checkAuth = async () => {
+  const auth = localStorage.getItem(LS.AUTH);
+  if (!auth) {
+    document.getElementById('login-overlay').classList.remove('hidden');
+    return false;
+  }
+  try {
+    const res = await fetch(`${API_URL}?type=login`, { headers: { 'X-Auth': auth } });
+    if (!res.ok) throw new Error('Invalid');
+    return true;
+  } catch (err) {
+    document.getElementById('login-overlay').classList.remove('hidden');
+    return false;
+  }
+};
+
+const handleLogin = async () => {
+  const pw = document.getElementById('login-pw').value;
+  const errEl = document.getElementById('login-err');
+  if (!pw) return;
+  
+  try {
+    const res = await fetch(`${API_URL}?type=login`, { headers: { 'X-Auth': pw } });
+    if (!res.ok) throw new Error('Invalid Password.');
+    
+    localStorage.setItem(LS.AUTH, pw);
+    document.getElementById('login-overlay').classList.add('hidden');
+    initApp();
+  } catch (err) {
+    errEl.textContent = err.message;
+    errEl.classList.remove('hidden');
+  }
+};
+
+const changePassword = async () => {
+  const newPw = document.getElementById('set-new-pw').value;
+  const msgEl = document.getElementById('set-pw-msg');
+  const auth = localStorage.getItem(LS.AUTH);
+  
+  if (newPw.length < 4) { showMsg(msgEl, 'Min 4 characters.', 'error'); return; }
+  
+  try {
+    const res = await fetch(`${API_URL}?type=change-password`, { 
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Auth': auth },
+      body: JSON.stringify({ newPassword: newPw })
+    });
+    if (!res.ok) throw new Error('Failed to update.');
+    localStorage.setItem(LS.AUTH, newPw);
+    showMsg(msgEl, '✅ Password updated successfully!', 'ok');
+    document.getElementById('set-new-pw').value = '';
+  } catch (err) {
+    showMsg(msgEl, err.message, 'error');
+  }
+};
+
+document.getElementById('btn-login').onclick = handleLogin;
+document.getElementById('login-pw').onkeypress = e => { if (e.key === 'Enter') handleLogin(); };
+document.getElementById('btn-change-pw').onclick = changePassword;
+
+// ── CUSTOM CONFIRM SYSTEM ──
+let confirmCallback = null;
+const showConfirm = (msg, onConfirm) => {
+  document.getElementById('confirm-msg').textContent = msg;
+  confirmCallback = onConfirm;
+  document.getElementById('confirm-modal').classList.remove('hidden');
+};
+
+document.getElementById('btn-confirm-yes').onclick = () => {
+  if (confirmCallback) confirmCallback();
+  document.getElementById('confirm-modal').classList.add('hidden');
+};
+document.getElementById('btn-confirm-cancel').onclick = () => {
+  document.getElementById('confirm-modal').classList.add('hidden');
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// TAB NAVIGATION
+// ─────────────────────────────────────────────────────────────────────────────
+
+const switchTab = tabId => {
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('hidden', p.id !== `tab-${tabId}`));
+};
+
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE: SURGERIES
+// ─────────────────────────────────────────────────────────────────────────────
+
+let editingSurgeryId = null;
+
+const renderSurgeries = () => {
+  const surgeries = lsGet(LS.SURGERIES);
+  const list      = document.getElementById('surgery-list');
+  const noMsg     = document.getElementById('no-surgeries-msg');
+  noMsg.classList.toggle('hidden', surgeries.length > 0);
+  list.querySelectorAll('.surgery-card').forEach(c => c.remove());
+  surgeries.forEach(s => {
+    const card = document.createElement('div');
+    card.className = 'surgery-card glass rounded-xl p-5 flex flex-col gap-2 transition-all hover:translate-y-[-2px]';
+    card.innerHTML = `
+      <div class="flex items-start justify-between gap-2">
+        <div>
+          <p class="font-semibold text-brand-700 text-sm">${escHtml(s.name)}</p>
+          <p class="text-xs text-slate-500">${escHtml(s.address)}</p>
+          <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1 font-bold">
+            ${s.type === 'percent' ? `Type A – ${s.sharePercent || 35}% Share` : `Type B – Hourly Rate`}
+          </p>
+        </div>
+      </div>
+      <div class="flex flex-wrap gap-2 mt-2">
+        <button class="btn-edit-surgery text-xs bg-brand-700 hover:bg-brand-600 px-3 py-1.5 rounded-lg text-white transition shadow-sm" data-id="${s.id}">Edit</button>
+        <button class="btn-del-surgery text-xs bg-slate-100 hover:bg-red-100 text-slate-500 hover:text-red-700 px-3 py-1.5 rounded-lg transition" data-id="${s.id}">Delete</button>
+      </div>`;
+    list.appendChild(card);
+  });
+  populateSurgeryDropdown(surgeries);
+};
+
+const escHtml = str => (str ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+const populateSurgeryDropdown = surgeries => {
+  const sel = document.getElementById('inv-surgery');
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">-- Choose Surgery --</option>';
+  surgeries.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name;
+    sel.appendChild(opt);
+  });
+  if (cur) sel.value = cur;
+};
+
+const updateSurgeryFormFields = () => {
+  const type = document.getElementById('sf-type').value;
+  document.getElementById('sf-group-percent').classList.toggle('hidden', type !== 'percent');
+  document.getElementById('sf-group-rate').classList.toggle('hidden', type !== 'rate');
+};
+document.getElementById('sf-type').addEventListener('change', updateSurgeryFormFields);
+
+const openSurgeryForm = (surgery = null) => {
+  editingSurgeryId = surgery ? surgery.id : null;
+  document.getElementById('surgery-form-title').textContent = surgery ? 'Edit Surgery' : 'New Surgery';
+  document.getElementById('sf-name').value            = surgery?.name           || '';
+  document.getElementById('sf-address').value         = surgery?.address        || '';
+  document.getElementById('sf-contact').value         = surgery?.contact        || '';
+  document.getElementById('sf-type').value            = surgery?.type           || 'percent';
+  document.getElementById('sf-default-charge').value  = surgery?.defaultCharge  ?? '';
+  document.getElementById('sf-share-percent').value   = surgery?.sharePercent   ?? '35';
+  document.getElementById('sf-default-rate').value    = surgery?.defaultRate    ?? '';
+  updateSurgeryFormFields();
+  document.getElementById('surgery-form-wrap').classList.remove('hidden');
+};
+
+const closeSurgeryForm = () => {
+  document.getElementById('surgery-form-wrap').classList.add('hidden');
+  editingSurgeryId = null;
+};
+
+const saveSurgery = () => {
+  const name    = document.getElementById('sf-name').value.trim();
+  const address = document.getElementById('sf-address').value.trim();
+  const type    = document.getElementById('sf-type').value;
+  if (!name || !address) return;
+  
+  const payload = { 
+    name, 
+    address, 
+    type,
+    contact: document.getElementById('sf-contact').value.trim(),
+    defaultCharge: parseFloat(document.getElementById('sf-default-charge').value) || null,
+    sharePercent: parseFloat(document.getElementById('sf-share-percent').value) || 35,
+    defaultRate: parseFloat(document.getElementById('sf-default-rate').value) || null
+  };
+  
+  const surgeries = lsGet(LS.SURGERIES);
+  if (editingSurgeryId) {
+    const idx = surgeries.findIndex(s => s.id === editingSurgeryId);
+    if (idx > -1) surgeries[idx] = { ...surgeries[idx], ...payload };
+  } else {
+    surgeries.push({ id: uid(), ...payload });
+  }
+  lsSet(LS.SURGERIES, surgeries);
+  closeSurgeryForm();
+  renderSurgeries();
+};
+
+const deleteSurgery = id => {
+  const surgeries = lsGet(LS.SURGERIES).filter(s => s.id !== id);
+  lsSet(LS.SURGERIES, surgeries);
+  renderSurgeries();
+};
+
+document.getElementById('btn-add-surgery').addEventListener('click', () => openSurgeryForm());
+document.getElementById('btn-save-surgery').addEventListener('click', saveSurgery);
+document.getElementById('btn-cancel-surgery').addEventListener('click', closeSurgeryForm);
+
+document.getElementById('surgery-list').addEventListener('click', e => {
+  const id = e.target.dataset.id;
+  if (!id) return;
+  if (e.target.classList.contains('btn-edit-surgery')) {
+    const s = lsGet(LS.SURGERIES).find(x => x.id === id);
+    if (s) openSurgeryForm(s);
+  } else if (e.target.classList.contains('btn-del-surgery')) {
+    showConfirm('Delete this surgery?', () => deleteSurgery(id));
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE: INVOICE TYPE TOGGLE
+// ─────────────────────────────────────────────────────────────────────────────
+
+const toggleInvoiceType = type => {
+  document.getElementById('section-percent').classList.toggle('hidden', type !== 'percent');
+  document.getElementById('section-rate').classList.toggle('hidden', type !== 'rate');
+};
+
+document.getElementById('inv-type').addEventListener('change', e => toggleInvoiceType(e.target.value));
+
+const onSurgerySelected = surgId => {
+  const s = lsGet(LS.SURGERIES).find(x => x.id === surgId);
+  const banner = document.getElementById('surgery-info-banner');
+  if (!s) { banner.classList.add('hidden'); return; }
+  
+  // Update type and toggle UI
+  document.getElementById('inv-type').value = s.type;
+  toggleInvoiceType(s.type);
+  
+  // Update Banner info
+  document.getElementById('sib-name').textContent = s.name;
+  document.getElementById('sib-address').textContent = s.address;
+  const rateInfo = s.type === 'percent' ? `${s.sharePercent || 35}% Share` : `${gbp(s.defaultRate)}/hr`;
+  document.getElementById('sib-rate-info').textContent = rateInfo;
+  banner.classList.remove('hidden');
+
+  // Update Table Headers for %
+  const pctTh = document.getElementById('th-due-pct');
+  if (pctTh) pctTh.textContent = `Due (${s.sharePercent || 35}%) (£)`;
+
+  // Auto-fill existing empty rows or add new one
+  if (s.type === 'percent') {
+    const rows = document.querySelectorAll('#percent-rows tr');
+    if (rows.length === 0) {
+      addPercentRow('', '', s.defaultCharge || '');
+    } else {
+      rows.forEach(tr => {
+        const chgInp = tr.querySelector('.p-row-charge');
+        if (!chgInp.value) chgInp.value = s.defaultCharge || '';
+        calcPercentRow(tr);
+      });
+      calcPercentTotals();
+    }
+  } else {
+    const rows = document.querySelectorAll('#rate-rows tr');
+    if (rows.length === 0) {
+      addRateRow('', '', '', s.defaultRate || '');
+    } else {
+      rows.forEach(tr => {
+        const rateInp = tr.querySelector('.r-row-rate');
+        if (!rateInp.value) rateInp.value = s.defaultRate || '';
+        calcRateRow(tr);
+      });
+      calcRateTotals();
+    }
+  }
+};
+
+document.getElementById('inv-surgery').addEventListener('change', e => onSurgerySelected(e.target.value));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE: PERCENTAGE ROWS (Type A)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const addPercentRow = (date = '', patients = '', charge = '') => {
+  const tbody = document.getElementById('percent-rows');
+  const tr = document.createElement('tr');
+  tr.className = 'border-b border-slate-700/40';
+  tr.innerHTML = `
+    <td class="px-3 py-2"><input type="date" class="p-row-date border border-slate-200 rounded px-2 py-1 text-xs w-32" value="${date}" /></td>
+    <td class="px-3 py-2"><input type="number" class="p-row-pts border border-slate-200 rounded px-2 py-1 text-xs w-20" value="${patients}" placeholder="0" /></td>
+    <td class="px-3 py-2"><input type="number" step="0.01" class="p-row-charge border border-slate-200 rounded px-2 py-1 text-xs w-24" value="${charge}" placeholder="0.00" /></td>
+    <td class="px-3 py-2 p-row-earning text-slate-500 text-xs font-mono">£0.00</td>
+    <td class="px-3 py-2 p-row-due text-brand-700 text-xs font-mono font-bold">£0.00</td>
+    <td class="px-3 py-2"><button class="btn-del-row text-slate-300 hover:text-red-500 transition-colors font-bold text-lg px-2">×</button></td>`;
+  tbody.appendChild(tr);
+  tr.querySelector('.btn-del-row').addEventListener('click', () => { tr.remove(); calcPercentTotals(); });
+  tr.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => { calcPercentRow(tr); calcPercentTotals(); }));
+  
+  if (patients || charge) { calcPercentRow(tr); calcPercentTotals(); }
+};
+
+const calcPercentRow = tr => {
+  const sId = document.getElementById('inv-surgery').value;
+  const s = lsGet(LS.SURGERIES).find(x => x.id === sId);
+  const share = (s?.sharePercent || 35) / 100;
+  
+  const pts = parseFloat(tr.querySelector('.p-row-pts').value) || 0;
+  const charge = parseFloat(tr.querySelector('.p-row-charge').value) || 0;
+  const earning = pts * charge;
+  
+  tr.querySelector('.p-row-earning').textContent = gbp(earning);
+  tr.querySelector('.p-row-due').textContent = gbp(earning * share);
+};
+
+const calcPercentTotals = () => {
+  let totE = 0, totD = 0;
+  document.querySelectorAll('#percent-rows tr').forEach(tr => {
+    totE += parseFloat(tr.querySelector('.p-row-earning').textContent.replace('£','')) || 0;
+    totD += parseFloat(tr.querySelector('.p-row-due').textContent.replace('£','')) || 0;
+  });
+  document.getElementById('total-earning').textContent = gbp(totE);
+  document.getElementById('total-due').textContent = gbp(totD);
+};
+
+document.getElementById('btn-add-row').addEventListener('click', () => addPercentRow());
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE: RATE ROWS (Type B)
+// ─────────────────────────────────────────────────────────────────────────────
+
+const addRateRow = (date = '', start = '08:30', end = '16:30', rate = '') => {
+  const tbody = document.getElementById('rate-rows');
+  const tr = document.createElement('tr');
+  tr.className = 'border-b border-slate-700/40';
+  tr.innerHTML = `
+    <td class="px-3 py-2"><input type="date" class="r-row-date border border-slate-200 rounded px-2 py-1 text-xs w-32" value="${date}" /></td>
+    <td class="px-3 py-2"><input type="time" class="r-row-start border border-slate-200 rounded px-2 py-1 text-xs w-24" value="${start}" /></td>
+    <td class="px-3 py-2"><input type="time" class="r-row-end border border-slate-200 rounded px-2 py-1 text-xs w-24" value="${end}" /></td>
+    <td class="px-3 py-2 r-row-hours text-slate-500 text-xs font-mono">0.00 hrs</td>
+    <td class="px-3 py-2"><input type="number" step="0.01" class="r-row-rate border border-slate-200 rounded px-2 py-1 text-xs w-20" value="${rate}" placeholder="0.00" /></td>
+    <td class="px-3 py-2 r-row-amount text-brand-700 text-xs font-mono font-bold">£0.00</td>
+    <td class="px-3 py-2"><button class="btn-del-session text-slate-300 hover:text-red-500 transition-colors font-bold text-lg px-2">×</button></td>`;
+  tbody.appendChild(tr);
+  tr.querySelector('.btn-del-session').addEventListener('click', () => { tr.remove(); calcRateTotals(); });
+  tr.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => { calcRateRow(tr); calcRateTotals(); }));
+  
+  // Initial calc if we have values
+  if (rate || start || end) { calcRateRow(tr); calcRateTotals(); }
+};
+
+const calcRateRow = tr => {
+  const start = tr.querySelector('.r-row-start').value;
+  const end = tr.querySelector('.r-row-end').value;
+  const rate = parseFloat(tr.querySelector('.r-row-rate').value) || 0;
+  const hours = timeToHours(start, end);
+  tr.querySelector('.r-row-hours').textContent = `${hours.toFixed(2)} hrs`;
+  tr.querySelector('.r-row-amount').textContent = gbp(hours * rate);
+};
+
+const calcRateTotals = () => {
+  let totH = 0, totA = 0;
+  document.querySelectorAll('#rate-rows tr').forEach(tr => {
+    totH += parseFloat(tr.querySelector('.r-row-hours').textContent) || 0;
+    totA += parseFloat(tr.querySelector('.r-row-amount').textContent.replace('£','')) || 0;
+  });
+  document.getElementById('total-hours').textContent = `${totH.toFixed(2)} hrs`;
+  document.getElementById('total-rate-amount').textContent = gbp(totA);
+};
+
+document.getElementById('btn-add-session').addEventListener('click', () => addRateRow());
+
+// ─────────────────────────────────────────────────────────────────────────────
+const collectInvoiceData = () => {
+  const surgId = document.getElementById('inv-surgery').value;
+  if (!surgId) { alert('Please select a surgery.'); return null; }
+  const num = document.getElementById('inv-number').value.trim();
+  if (!num) { alert('Invoice number is required.'); return null; }
+  
+  const surgery = lsGet(LS.SURGERIES).find(s => s.id === surgId);
+  const type = document.getElementById('inv-type').value;
+  
+  const inv = {
+    id: uid(), number: num, date: document.getElementById('inv-date').value,
+    period: document.getElementById('inv-period').value.trim(),
+    surgery, type, notes: document.getElementById('inv-notes').value.trim(),
+    status: 'finalised', createdAt: new Date().toISOString()
+  };
+
+  if (type === 'percent') {
+    const share = (surgery?.sharePercent || 35);
+    const rows = [];
+    document.querySelectorAll('#percent-rows tr').forEach(tr => {
+      const pts = parseFloat(tr.querySelector('.p-row-pts').value);
+      const charge = parseFloat(tr.querySelector('.p-row-charge').value);
+      if (pts || charge) {
+        rows.push({
+          date: tr.querySelector('.p-row-date').value,
+          patients: pts || 0, charge: charge || 0,
+          earning: (pts || 0) * (charge || 0), due: (pts || 0) * (charge || 0) * (share/100)
+        });
+      }
+    });
+    if (!rows.length) { alert('Add at least one row with data.'); return null; }
+    inv.rows = rows; inv.sharePercent = share;
+    inv.totalEarning = rows.reduce((a, b) => a + b.earning, 0);
+    inv.totalDue = rows.reduce((a, b) => a + b.due, 0);
+  } else {
+    const sessions = [];
+    document.querySelectorAll('#rate-rows tr').forEach(tr => {
+      const r = parseFloat(tr.querySelector('.r-row-rate').value);
+      if (r) {
+        const start = tr.querySelector('.r-row-start').value, end = tr.querySelector('.r-row-end').value;
+        const hrs = timeToHours(start, end);
+        sessions.push({ date: tr.querySelector('.r-row-date').value, start, end, hours: hrs, rate: r, amount: hrs * r });
+      }
+    });
+    if (!sessions.length) { alert('Add at least one session.'); return null; }
+    inv.sessions = sessions;
+    inv.totalHours = sessions.reduce((a, b) => a + b.hours, 0);
+    inv.totalDue = sessions.reduce((a, b) => a + b.amount, 0);
+  }
+  return inv;
+};
+
+const buildInvoiceHtml = inv => {
+  const fmt = d => d ? new Date(d).toLocaleDateString('en-GB') : '—';
+  let tableHtml = '';
+  
+  if (inv.type === 'percent') {
+    const rows = inv.rows.map(r => `
+      <tr><td>${fmt(r.date)}</td><td>${r.patients}</td><td>${gbp(r.charge)}</td><td>${gbp(r.earning)}</td><td style="color:#023433;font-weight:700;">${gbp(r.due)}</td></tr>`).join('');
+    tableHtml = `
+      <table>
+        <thead><tr><th>Date</th><th>Patients</th><th>Charge</th><th>Earning</th><th>Due (${inv.sharePercent}%)</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr style="background:#f9f5f3;font-weight:700;"><td colspan="3">TOTAL</td><td>${gbp(inv.totalEarning)}</td><td style="color:#D9A5A0;font-size:16px;">${gbp(inv.totalDue)}</td></tr></tfoot>
+      </table>`;
+  } else {
+    const rows = inv.sessions.map(s => `
+      <tr><td>${fmt(s.date)}</td><td>${s.start} - ${s.end}</td><td>${s.hours.toFixed(2)} hrs</td><td>${gbp(s.rate)}/hr</td><td style="color:#023433;font-weight:700;">${gbp(s.amount)}</td></tr>`).join('');
+    tableHtml = `
+      <table>
+        <thead><tr><th>Date</th><th>Session</th><th>Hours</th><th>Rate</th><th>Amount</th></tr></thead>
+        <tbody>${rows}</tbody>
+        <tfoot><tr style="background:#f9f5f3;font-weight:700;"><td colspan="4">TOTAL PAYMENT DUE</td><td style="color:#D9A5A0;font-size:16px;">${gbp(inv.totalDue)}</td></tr></tfoot>
+      </table>`;
+  }
+
+  const tableStyles = `
+    <style>
+      #invoice-pdf-root table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 11px; }
+      #invoice-pdf-root th { background-color: #023433; color: white; padding: 12px 15px; text-align: left; text-transform: uppercase; letter-spacing: 1px; font-size: 9px; }
+      #invoice-pdf-root td { padding: 12px 15px; border-bottom: 1px solid #f0e9e7; vertical-align: top; }
+      #invoice-pdf-root tr:nth-child(even) { background-color: #fcfaf9; }
+      #invoice-pdf-root tfoot td { border-top: 2px solid #D9A5A0; padding-top: 15px; font-weight: bold; }
+    </style>`;
+
+  return `
+    ${tableStyles}
+    <div id="invoice-pdf-root" style="width:720px;padding:40px;background:#fff;font-family:Inter,sans-serif;color:#111;">
+      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #D9A5A0;padding-bottom:15px;margin-bottom:30px;">
+        <div style="display:flex;align-items:center;gap:15px;">
+          ${BRAND.logoSvg}
+          <div>
+            <h1 style="font-family:'Playfair Display',serif;font-size:26px;color:#023433;margin:0;letter-spacing:1px;line-height:1;">PRISTINE</h1>
+            <p style="font-size:9px;text-transform:uppercase;color:#D9A5A0;letter-spacing:3px;margin:2px 0 0;">Aesthetics & Wellness</p>
+          </div>
+        </div>
+        <div style="text-align:right;">
+          <h2 style="font-family:'Playfair Display',serif;font-size:22px;color:#023433;margin:0;letter-spacing:1px;">INVOICE</h2>
+          <p style="font-size:12px;color:#666;margin:4px 0;">#${inv.number} | ${fmt(inv.date)}</p>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:30px;">
+        <div>
+          <h4 style="font-size:10px;text-transform:uppercase;color:#D9A5A0;margin-bottom:6px;letter-spacing:1px;">From</h4>
+          <p style="font-weight:700;color:#023433;font-size:14px;margin:0;">${BRAND.name}</p>
+          <p style="font-size:11px;color:#555;margin:2px 0;">${BRAND.address}</p>
+          <p style="font-size:10px;color:#888;margin-top:4px;">${BRAND.ref}</p>
+        </div>
+        <div style="text-align:right;">
+          <h4 style="font-size:10px;text-transform:uppercase;color:#D9A5A0;margin-bottom:6px;letter-spacing:1px;">Invoice To</h4>
+          <p style="font-weight:700;color:#023433;font-size:14px;margin:0;">${inv.surgery.name}</p>
+          <p style="font-size:11px;color:#555;margin:2px 0;">${inv.surgery.address}</p>
+          <p style="font-size:11px;color:#555;font-weight:600;">${inv.period}</p>
+        </div>
+      </div>
+
+      <div style="margin-bottom:30px;">${tableHtml}</div>
+      
+      <div style="background:#fdfaf9;border:1px solid #f2e1df;border-radius:12px;padding:15px 25px;margin-bottom:30px;display:flex;justify-content:space-between;align-items:center;">
+         <div>
+           <h4 style="font-size:10px;text-transform:uppercase;color:#D9A5A0;margin-bottom:5px;letter-spacing:1px;">BACS Details</h4>
+           <p style="font-size:12px;color:#023433;margin:2px 0;"><strong>${BRAND.payee}</strong></p>
+           <p style="font-size:11px;color:#555;margin:0;">${BRAND.bank} · Sort: ${BRAND.sortCode} · Acc: ${BRAND.account}</p>
+         </div>
+         <div style="text-align:right;">
+           <h4 style="font-size:10px;text-transform:uppercase;color:#D9A5A0;margin-bottom:5px;letter-spacing:1px;">Total Due</h4>
+           <p style="font-family:'Playfair Display',serif;font-size:28px;color:#023433;margin:0;font-weight:700;">${gbp(inv.totalDue)}</p>
+         </div>
+      </div>
+
+      ${inv.notes ? `<div style="font-style:italic;font-size:11px;color:#777;border-left:3px solid #D9A5A0;padding-left:15px;margin-top:20px;">Notes: ${inv.notes}</div>` : ''}
+    </div>`;
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE: PREVIEW & PDF
+// ─────────────────────────────────────────────────────────────────────────────
+
+const showPreview = (data = null) => {
+  const inv = data || collectInvoiceData();
+  if (!inv) return;
+  document.getElementById('invoice-preview').innerHTML = buildInvoiceHtml(inv);
+  const overlay = document.getElementById('modal-overlay');
+  overlay.classList.remove('hidden');
+  overlay.style.pointerEvents = 'auto';
+  document.body.style.overflow = 'hidden';
+  document.getElementById('btn-finalise').onclick = () => finaliseInvoice(inv);
+  document.getElementById('btn-download-pdf').onclick = () => downloadPdf(inv);
+};
+
+const finaliseInvoice = inv => {
+  const list = lsGet(LS.INVOICES);
+  list.unshift(inv);
+  lsSet(LS.INVOICES, list);
+  renderHistory();
+  closeModal();
+  switchTab('history');
+  showConfirm('Invoice Saved! Clear form for next one?', clearInvoiceForm);
+};
+
+const downloadPdf = inv => {
+  const root = document.getElementById('invoice-pdf-root');
+  const opt = {
+    margin: 0, filename: `Invoice_${inv.number}.pdf`, image: { type: 'jpeg', quality: 1.0 },
+    html2canvas: { scale: 2, useCORS: true, letterRendering: true, width: 720, scrollY: 0 },
+    jsPDF: { unit: 'px', format: [720, 1018], orientation: 'portrait' }
+  };
+  html2pdf().from(root).set(opt).save();
+};
+
+const closeModal = () => {
+  document.getElementById('modal-overlay').classList.add('hidden');
+  document.getElementById('modal-overlay').style.pointerEvents = 'none';
+  document.body.style.overflow = '';
+};
+
+document.getElementById('btn-close-modal').onclick = closeModal;
+document.getElementById('btn-preview').onclick = () => showPreview();
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE: DRAFT
+// ─────────────────────────────────────────────────────────────────────────────
+
+document.getElementById('btn-save-draft').addEventListener('click', () => {
+  const inv = collectInvoiceData();
+  if (!inv) return;
+  inv.status = 'draft';
+  lsSet(LS.DRAFT, inv);
+  showMsg(document.getElementById('create-msg'), '✅ Draft saved!', 'ok');
+  dbg('draft saved');
+});
+
+/** Load a draft invoice back into the form */
+const loadDraft = inv => {
+  document.getElementById('inv-number').value = inv.number || '';
+  document.getElementById('inv-date').value   = inv.date   || '';
+  document.getElementById('inv-period').value = inv.period || '';
+  document.getElementById('inv-notes').value  = inv.notes  || '';
+
+  if (inv.surgery) {
+    document.getElementById('inv-surgery').value = inv.surgery.id || '';
+  }
+  document.getElementById('inv-type').value = inv.type || 'percent';
+  toggleInvoiceType(inv.type);
+
+  // Clear existing rows
+  document.getElementById('percent-rows').innerHTML = '';
+  document.getElementById('rate-rows').innerHTML    = '';
+
+  if (inv.type === 'percent' && inv.rows) {
+    inv.rows.forEach(r => addPercentRow(r.date, r.patients, r.charge));
+  } else if (inv.type === 'rate' && inv.sessions) {
+    inv.sessions.forEach(s => addRateRow(s.date, s.start, s.end, s.rate));
+  }
+};
+
+const clearInvoiceForm = () => {
+  document.getElementById('inv-surgery').value = '';
+  document.getElementById('inv-period').value = '';
+  document.getElementById('inv-notes').value = '';
+  document.getElementById('percent-rows').innerHTML = '';
+  document.getElementById('rate-rows').innerHTML = '';
+  document.getElementById('surgery-info-banner').classList.add('hidden');
+  const invoices = lsGet(LS.INVOICES);
+  document.getElementById('inv-number').value = `PA-${String(invoices.length + 1).padStart(4, '0')}`;
+  calcPercentTotals(); 
+  calcRateTotals();
+  addPercentRow(); 
+  addRateRow();
+};
+
+document.getElementById('btn-clear').onclick = () => {
+  showConfirm('Clear the current invoice form?', clearInvoiceForm);
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE: HISTORY
+// ─────────────────────────────────────────────────────────────────────────────
+
+const renderHistory = () => {
+  const invoices = lsGet(LS.INVOICES);
+  const list     = document.getElementById('history-list');
+  list.innerHTML = '';
+  if (!invoices.length) { list.innerHTML = '<p class="p-8 text-slate-400 text-sm">No finalised invoices.</p>'; return; }
+
+  const table = document.createElement('table');
+  table.className = 'w-full text-sm';
+  table.innerHTML = `
+    <thead>
+      <tr class="text-xs text-brand-700 bg-brand-50 border-b border-slate-200">
+        <th class="px-4 py-3 text-left w-24">Actions</th>
+        <th class="px-4 py-3 text-left">Invoice #</th>
+        <th class="px-4 py-3 text-left">Surgery</th>
+        <th class="px-4 py-3 text-left">Period</th>
+        <th class="px-4 py-3 text-left font-bold">Total Due</th>
+        <th class="px-4 py-3 text-left">Date</th>
+      </tr>
+    </thead>
+    <tbody id="hist-body"></tbody>`;
+  list.appendChild(table);
+
+  invoices.forEach(inv => {
+    const tr = document.createElement('tr');
+    tr.className = 'hist-row border-b border-slate-100 hover:bg-brand-50 transition-colors';
+    tr.innerHTML = `
+      <td class="px-4 py-3">
+        <div class="flex gap-2">
+          <button onclick="viewHistoryInvoice('${inv.id}')" class="text-[10px] uppercase bg-brand-700 text-white px-2 py-1 rounded font-bold shadow-sm">View</button>
+          <button onclick="deleteHistoryInvoice('${inv.id}')" class="text-[10px] uppercase bg-red-600 text-white px-2 py-1 rounded font-bold shadow-sm">Del</button>
+        </div>
+      </td>
+      <td class="px-4 py-3 font-mono text-brand-700 font-bold">${escHtml(inv.number)}</td>
+      <td class="px-4 py-3 font-medium text-slate-800">${escHtml(inv.surgery?.name || '—')}</td>
+      <td class="px-4 py-3 text-slate-500">${escHtml(inv.period || '—')}</td>
+      <td class="px-4 py-3 font-bold text-brand-700">${gbp(inv.totalDue)}</td>
+      <td class="px-4 py-3 text-slate-400 text-xs">${inv.date ? new Date(inv.date).toLocaleDateString('en-GB') : '—'}</td>`;
+    document.getElementById('hist-body').appendChild(tr);
+  });
+};
+
+window.viewHistoryInvoice = id => {
+  const inv = lsGet(LS.INVOICES).find(i => i.id === id);
+  if (inv) showPreview(inv);
+};
+
+window.deleteHistoryInvoice = id => {
+  showConfirm('Permanently delete this invoice from history?', () => {
+    const updated = lsGet(LS.INVOICES).filter(i => i.id !== id);
+    lsSet(LS.INVOICES, updated);
+    renderHistory();
+  });
+};
+
+document.getElementById('btn-clear-history').addEventListener('click', () => {
+  showConfirm('Delete ALL invoice history? This cannot be undone.', () => {
+    lsSet(LS.INVOICES, []);
+    renderHistory();
+  });
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INITIALISE
+// ─────────────────────────────────────────────────────────────────────────────
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE: SEED DEFAULT SURGERIES
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Pre-populates well-known surgeries on first run.
+ * Uses name-match to avoid duplicates on subsequent loads.
+ */
+const seedSurgeries = () => {
+  const existing = lsGet(LS.SURGERIES);
+  if (existing.length > 0) return;
+  const seeds = [
+    { id: uid(), name: 'Warwick Lodge Dental', address: '44 Canterbury Rd, Herne Bay CT6 5DF', type: 'percent', sharePercent: 35, defaultCharge: 120 },
+    { id: uid(), name: 'Highfield Dental', address: '81 Crofton Road, Orpington BR6 8HU', type: 'rate', defaultRate: 35 }
+  ];
+  lsSet(LS.SURGERIES, seeds);
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE: DAILY LOG
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Show/hide log form fields based on the selected surgery's type,
+ * and pre-fill default rates from the surgery record.
+ */
+const updateLogFieldVisibility = () => {
+  const surgId = document.getElementById('log-surgery').value;
+  const s = lsGet(LS.SURGERIES).find(x => x.id === surgId);
+  const isPercent = !s || s.type === 'percent';
+
+  // Type A fields
+  document.getElementById('log-field-patients').classList.toggle('hidden', !isPercent);
+  document.getElementById('log-field-charge').classList.toggle('hidden', !isPercent);
+  // Type B fields
+  document.getElementById('log-field-start').classList.toggle('hidden', isPercent);
+  document.getElementById('log-field-end').classList.toggle('hidden', isPercent);
+  document.getElementById('log-field-rate').classList.toggle('hidden', isPercent);
+
+  // Pre-fill defaults from surgery config
+  if (s?.defaultCharge) document.getElementById('log-charge').value = s.defaultCharge;
+  if (s?.defaultRate)   document.getElementById('log-rate').value   = s.defaultRate;
+
+  updateLogCalcPreview();
+};
+
+/** Show a live calculation preview using the surgery's stored share % */
+const updateLogCalcPreview = () => {
+  const surgId  = document.getElementById('log-surgery').value;
+  const s       = lsGet(LS.SURGERIES).find(x => x.id === surgId);
+  const preview = document.getElementById('log-calc-preview');
+  if (!surgId) { preview.classList.add('hidden'); return; }
+
+  if (!s || s.type === 'percent') {
+    const pct    = s?.sharePercent || 35;
+    const pts    = parseFloat(document.getElementById('log-patients').value) || 0;
+    const charge = parseFloat(document.getElementById('log-charge').value)   || 0;
+    const earn   = pts * charge;
+    const due    = earn * (pct / 100);
+    preview.textContent = `Earning: ${gbp(earn)}  →  ${pct}% Due: ${gbp(due)}`;
+  } else {
+    const start = document.getElementById('log-start').value;
+    const end   = document.getElementById('log-end').value;
+    const rate  = parseFloat(document.getElementById('log-rate').value) || 0;
+    const hours = (start && end) ? timeToHours(start, end) : 0;
+    preview.textContent = `Hours: ${hours.toFixed(2)}h  ×  £${rate}/hr  =  ${gbp(hours * rate)}`;
+  }
+  preview.classList.remove('hidden');
+};
+
+/** Wire live-preview on all log inputs */
+['log-patients','log-charge','log-start','log-end','log-rate'].forEach(id => {
+  const el = document.getElementById(id);
+  if (el) el.addEventListener('input', updateLogCalcPreview);
+});
+document.getElementById('log-surgery').addEventListener('change', updateLogFieldVisibility);
+
+/** Save a daily log entry to localStorage */
+const saveLogEntry = () => {
+  const surgId   = document.getElementById('log-surgery').value;
+  const date     = document.getElementById('log-date').value;
+  const notes    = document.getElementById('log-notes').value.trim();
+  const msgEl    = document.getElementById('log-msg');
+
+  if (!surgId) { showMsg(msgEl, 'Please select a surgery.', 'error'); return; }
+  if (!date)   { showMsg(msgEl, 'Please enter a date.',    'error'); return; }
+
+  const s = lsGet(LS.SURGERIES).find(x => x.id === surgId);
+  const entry = { id: uid(), surgeryId: surgId, surgeryName: s?.name || '', date, notes, createdAt: new Date().toISOString() };
+
+  if (!s || s.type === 'percent') {
+    const pct      = s?.sharePercent || 35;
+    entry.type     = 'percent';
+    entry.patients = parseFloat(document.getElementById('log-patients').value) || 0;
+    entry.charge   = parseFloat(document.getElementById('log-charge').value)   || 0;
+    entry.earning  = entry.patients * entry.charge;
+    entry.due      = entry.earning * (pct / 100);
+    entry.sharePercent = pct;
+  } else {
+    entry.type   = 'rate';
+    entry.start  = document.getElementById('log-start').value;
+    entry.end    = document.getElementById('log-end').value;
+    entry.rate   = parseFloat(document.getElementById('log-rate').value) || 0;
+    entry.hours  = (entry.start && entry.end) ? timeToHours(entry.start, entry.end) : 0;
+    entry.amount = entry.hours * entry.rate;
+  }
+
+  const logs = lsGet(LS.LOGS);
+  logs.unshift(entry);
+  lsSet(LS.LOGS, logs);
+  showMsg(msgEl, '✅ Entry saved!', 'ok');
+
+  // Reset date and values (keep surgery selection)
+  document.getElementById('log-date').value     = '';
+  document.getElementById('log-patients').value = '';
+  document.getElementById('log-charge').value   = '';
+  document.getElementById('log-start').value    = '';
+  document.getElementById('log-end').value      = '';
+  document.getElementById('log-notes').value    = '';
+  document.getElementById('log-calc-preview').classList.add('hidden');
+
+  renderLogTable();
+  dbg('log entry saved:', entry);
+};
+
+document.getElementById('btn-save-log').addEventListener('click', saveLogEntry);
+
+/** Render the log entries table with optional filter */
+const renderLogTable = (filterSurgId = '', filterMonth = '') => {
+  let logs = lsGet(LS.LOGS);
+  if (filterSurgId) logs = logs.filter(l => l.surgeryId === filterSurgId);
+  if (filterMonth)  logs = logs.filter(l => l.date && l.date.startsWith(filterMonth));
+
+  const wrap  = document.getElementById('log-table-wrap');
+  wrap.innerHTML = '';
+  if (!logs.length) { wrap.innerHTML = '<p class="p-8 text-slate-400 text-sm">No daily log entries.</p>'; return; }
+
+  const table = document.createElement('table');
+  table.className = 'w-full text-xs text-slate-700';
+  table.innerHTML = `
+    <thead>
+      <tr class="bg-brand-50 text-brand-700 border-b border-slate-200">
+        <th class="px-3 py-3 text-left">Date</th>
+        <th class="px-3 py-3 text-left">Surgery</th>
+        <th class="px-3 py-3 text-left">Work Details</th>
+        <th class="px-3 py-3 text-left font-bold">Due</th>
+        <th class="px-3 py-3 w-12"></th>
+      </tr>
+    </thead>
+    <tbody id="log-tbody"></tbody>`;
+  wrap.appendChild(table);
+
+  const tbody = document.getElementById('log-tbody');
+  logs.forEach(l => {
+    const tr = document.createElement('tr');
+    tr.className = 'border-b border-slate-100 hover:bg-brand-50 transition-colors';
+    const work = l.type === 'percent' ? `${l.patients} pts @ ${gbp(l.charge)}` : `${l.hours.toFixed(2)} hrs @ ${gbp(l.rate)}/hr`;
+    const due = l.type === 'percent' ? l.due : l.amount;
+    tr.innerHTML = `
+      <td class="px-3 py-2">${new Date(l.date).toLocaleDateString('en-GB')}</td>
+      <td class="px-3 py-2 font-medium text-slate-900">${escHtml(l.surgeryName)}</td>
+      <td class="px-3 py-2 font-mono text-slate-500">${work}</td>
+      <td class="px-3 py-2 font-bold text-brand-700">${gbp(due)}</td>
+      <td class="px-3 py-2 text-right">
+        <button onclick="deleteLogEntry('${l.id}')" class="text-slate-300 hover:text-red-500 transition-colors font-bold text-lg px-2">×</button>
+      </td>`;
+    tbody.appendChild(tr);
+  });
+};
+
+window.deleteLogEntry = id => {
+  showConfirm('Delete this log entry?', () => {
+    const all = lsGet(LS.LOGS).filter(x => x.id !== id);
+    lsSet(LS.LOGS, all);
+    renderLogTable();
+  });
+};
+
+// Filter controls
+document.getElementById('btn-apply-log-filter').addEventListener('click', () => {
+  renderLogTable(
+    document.getElementById('log-filter-surgery').value,
+    document.getElementById('log-filter-month').value
+  );
+});
+document.getElementById('btn-clear-log-filter').addEventListener('click', () => {
+  document.getElementById('log-filter-surgery').value = '';
+  document.getElementById('log-filter-month').value   = '';
+  renderLogTable();
+});
+
+/** Populate the log surgery dropdowns from the master list */
+const populateLogDropdowns = surgeries => {
+  ['log-surgery', 'log-filter-surgery'].forEach(selId => {
+    const sel = document.getElementById(selId);
+    const cur = sel.value;
+    // Keep the first default option
+    while (sel.options.length > 1) sel.remove(1);
+    surgeries.forEach(s => {
+      const opt = document.createElement('option');
+      opt.value = s.id;
+      opt.textContent = s.name;
+      sel.appendChild(opt);
+    });
+    if (cur) sel.value = cur;
+  });
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MODULE: IMPORT LOGS → INVOICE
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Imports all matching log entries for the currently selected surgery
+ * into the invoice form rows, clearing any existing rows first.
+ * @param {string} type  'percent' | 'rate'
+ */
+const importLogsToInvoice = type => {
+  const surgId = document.getElementById('inv-surgery').value;
+  if (!surgId) { alert('Please select a surgery first.'); return; }
+
+  const period = document.getElementById('inv-period').value.trim();
+  let logs = lsGet(LS.LOGS).filter(l => l.surgeryId === surgId && l.type === type);
+
+  // If period looks like "Month YYYY" try to filter by that month
+  if (period) {
+    const parsed = new Date(period);
+    if (!isNaN(parsed)) {
+      const ym = `${parsed.getFullYear()}-${String(parsed.getMonth()+1).padStart(2,'0')}`;
+      const filtered = logs.filter(l => l.date && l.date.startsWith(ym));
+      if (filtered.length) logs = filtered;
+    }
+  }
+
+  if (!logs.length) { alert('No matching log entries found for this surgery / period.'); return; }
+
+  if (type === 'percent') {
+    document.getElementById('percent-rows').innerHTML = '';
+    logs.forEach(l => addPercentRow(l.date, l.patients, l.charge));
+  } else {
+    document.getElementById('rate-rows').innerHTML = '';
+    logs.forEach(l => addRateRow(l.date, l.start, l.end, l.rate));
+  }
+  dbg(`Imported ${logs.length} log entries into invoice`);
+};
+
+document.getElementById('btn-import-logs-percent').addEventListener('click', () => importLogsToInvoice('percent'));
+document.getElementById('btn-import-logs-rate').addEventListener('click',    () => importLogsToInvoice('rate'));
+
+// ─────────────────────────────────────────────────────────────────────────────
+// OVERRIDE: renderSurgeries – also refresh log dropdowns
+// ─────────────────────────────────────────────────────────────────────────────
+const _origRenderSurgeries = renderSurgeries;
+const renderSurgeriesAll = () => {
+  _origRenderSurgeries();
+  populateLogDropdowns(lsGet(LS.SURGERIES));
+};
+// Patch references so future saves also update log dropdowns
+document.getElementById('btn-save-surgery').removeEventListener('click', saveSurgery);
+document.getElementById('btn-save-surgery').addEventListener('click', () => {
+  saveSurgery();
+  populateLogDropdowns(lsGet(LS.SURGERIES));
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Bootstrap the app.
+ * 1. Load all four data files from api.php (file wins over localStorage cache).
+ * 2. Seed default surgeries if the list is empty.
+ * 3. Render all UI sections.
+ */
+const initApp = async () => {
+  // Set today's date defaults
+  document.getElementById('inv-date').value = new Date().toISOString().split('T')[0];
+  document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
+
+  // Show a subtle loading indicator
+  document.querySelector('main').style.opacity = '0.6';
+
+  // 1. Load all data from JSON files (primes localStorage automatically)
+  await Promise.all([
+    loadFromFile(LS.SURGERIES),
+    loadFromFile(LS.INVOICES),
+    loadFromFile(LS.LOGS),
+    loadFromFile(LS.DRAFT),
+  ]);
+
+  document.querySelector('main').style.opacity = '1';
+  document.querySelector('main').style.transition = 'opacity .3s';
+
+  // 2. Seed default surgeries on first run (writes back to file)
+  seedSurgeries();
+
+  // 3. Auto-generate an invoice number
+  const invoices = lsGet(LS.INVOICES);
+  const nextNum  = `PA-${String(invoices.length + 1).padStart(4, '0')}`;
+  document.getElementById('inv-number').value = nextNum;
+
+  // 4. Render all UI sections
+  renderSurgeries();
+  populateLogDropdowns(lsGet(LS.SURGERIES));
+  renderHistory();
+  renderLogTable();
+  updateLogFieldVisibility();
+
+  // 5. Load draft if it exists
+  const raw = localStorage.getItem(LS.DRAFT);
+  if (raw && raw !== '[]' && raw !== 'null') {
+    try {
+      const d = JSON.parse(raw);
+      if (d && d.number) showConfirm('A saved draft was found. Load it?', () => loadDraft(d));
+    } catch(e) { dbg('draft parse error', e); }
+  }
+
+  // 6. Start with one empty row for convenience
+  addPercentRow();
+  addRateRow();
+
+  dbg('App initialised (file-backed storage active)');
+};
+
+// 7. Initialise only if authenticated
+checkAuth().then(ok => { if (ok) initApp(); });
+
+</script>
+</body>
+</html>

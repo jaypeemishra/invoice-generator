@@ -1,0 +1,35 @@
+[
+    {
+        "id": "mng0xnxo9eg6",
+        "name": "Warwick Lodge Dental and Implant Centre",
+        "address": "44 Canterbury Rd, Herne Bay CT6 5DF",
+        "contact": "warwicklodgedental@gmail.com",
+        "type": "rate",
+        "createdAt": "2026-04-01T12:30:33.324Z",
+        "defaultCharge": null,
+        "sharePercent": 35,
+        "defaultRate": 35
+    },
+    {
+        "id": "mng0xnxockoi",
+        "name": "Highfield Dental",
+        "address": "81 Crofton Road, Orpington, Kent BR6 8HU",
+        "contact": "sejal@highfielddental.org",
+        "type": "rate",
+        "createdAt": "2026-04-01T12:30:33.324Z",
+        "defaultCharge": null,
+        "sharePercent": 35,
+        "defaultRate": 35
+    },
+    {
+        "id": "mng0zwnp5myj",
+        "name": "First Dental Grove Park",
+        "address": "139 Marvels Lane Grove Park London SE12 9PP",
+        "contact": "claudinehasoon@gmail.com",
+        "type": "percent",
+        "createdAt": "2026-04-01T12:32:17.941Z",
+        "defaultCharge": 65,
+        "sharePercent": 35,
+        "defaultRate": null
+    }
+]
