@@ -160,8 +160,12 @@
           <input id="sf-address" type="text" placeholder="Full address" class="w-full rounded-lg px-3 py-2 text-sm" />
         </div>
         <div>
-          <label class="block text-xs text-slate-500 mb-1">Contact / Email</label>
-          <input id="sf-contact" type="text" placeholder="Optional" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <label class="block text-xs text-slate-500 mb-1">Contact / Role</label>
+          <input id="sf-contact" type="text" placeholder="e.g. Practice Manager" class="w-full rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-slate-500 mb-1">Email Address</label>
+          <input id="sf-email" type="email" placeholder="surgery@example.com" class="w-full rounded-lg px-3 py-2 text-sm" />
         </div>
         <div>
           <label class="block text-xs text-slate-500 mb-1">Default Invoice Type</label>
@@ -341,13 +345,20 @@
   </section>
 
   <!-- ████ TAB: HISTORY ████ -->
-  <section id="tab-history" class="tab-pane hidden">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-brand-700">Invoice History</h2>
-      <button id="btn-clear-history" class="text-xs bg-red-100 hover:bg-red-200 text-red-700 px-3 py-1.5 rounded-lg transition">Clear All</button>
+  <section id="tab-history" class="tab-pane hidden space-y-8">
+    <!-- Finalised Section -->
+    <div>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-xl font-bold text-brand-700">Finalised Invoices</h2>
+        <button id="btn-clear-history" class="text-[10px] uppercase font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-red-100 italic">Clear Records</button>
+      </div>
+      <div id="history-list" class="glass rounded-2xl overflow-hidden shadow-sm"></div>
     </div>
-    <div id="history-list" class="glass rounded-2xl overflow-hidden">
-      <p id="no-history-msg" class="text-slate-500 text-sm p-6">No finalised invoices yet.</p>
+
+    <!-- Drafts Section -->
+    <div class="pt-4 border-t border-slate-200">
+      <h3 class="text-lg font-bold text-slate-700 mb-4">Saved Drafts</h3>
+      <div id="drafts-list" class="glass rounded-2xl overflow-hidden shadow-sm border border-brand-500/10"></div>
     </div>
   </section>
 
@@ -430,16 +441,30 @@
   <section id="tab-settings" class="tab-pane hidden">
     <h2 class="text-xl font-bold text-brand-700 mb-6">Settings</h2>
     
-    <div class="glass rounded-2xl p-6 max-w-md">
-      <h3 class="text-sm font-semibold text-brand-700 mb-4">Change Access Password</h3>
-      <div class="space-y-4">
-        <div>
-          <label class="block text-xs text-slate-500 mb-1">New Password</label>
-          <input id="set-new-pw" type="password" placeholder="Min 4 characters" class="w-full" />
+    <div class="grid md:grid-cols-2 gap-6 items-start">
+      <div class="glass rounded-2xl p-6">
+        <h3 class="text-sm font-semibold text-brand-700 mb-4">Core App Settings</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Production URL (Base URL)</label>
+            <input id="set-base-url" type="url" placeholder="https://your-domain.com/invoice-gen/" class="w-full" />
+            <p class="text-[10px] text-slate-400 mt-1 italic">Used for sharing invoice links in emails. Leave blank for "localhost".</p>
+          </div>
+          <button id="btn-save-config" class="bg-brand-700 hover:bg-brand-600 text-white w-full py-2.5 rounded-xl text-sm font-medium transition shadow-md">Save Configuration</button>
         </div>
-        <button id="btn-change-pw" class="bg-brand-700 hover:bg-brand-600 text-white w-full py-2.5 rounded-xl text-sm font-medium transition shadow-md">Update Password</button>
       </div>
-      <div id="set-pw-msg" class="text-xs mt-2 hidden"></div>
+
+      <div class="glass rounded-2xl p-6">
+        <h3 class="text-sm font-semibold text-brand-700 mb-4">Change Access Password</h3>
+        <div class="space-y-4">
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">New Password</label>
+            <input id="set-new-pw" type="password" placeholder="Min 4 characters" class="w-full" />
+          </div>
+          <button id="btn-change-pw" class="bg-brand-700 hover:bg-brand-600 text-white w-full py-2.5 rounded-xl text-sm font-medium transition shadow-md">Update Password</button>
+        </div>
+        <div id="set-pw-msg" class="text-xs mt-2 hidden"></div>
+      </div>
     </div>
   </section>
 
@@ -519,7 +544,8 @@ const LS = {
   INVOICES  : 'pa_invoices',
   DRAFT     : 'pa_draft',
   LOGS      : 'pa_logs',
-  AUTH      : 'pa_auth'
+  AUTH      : 'pa_auth',
+  CONFIG    : 'pa_config'
 };
 
 const FILE_TYPE = {
@@ -527,6 +553,7 @@ const FILE_TYPE = {
   [LS.INVOICES] : 'invoices',
   [LS.LOGS]     : 'logs',
   [LS.DRAFT]    : 'draft',
+  [LS.CONFIG]   : 'config'
 };
 
 const API_URL = 'api.php';
@@ -548,9 +575,31 @@ const showMsg = (el, text, type = 'info') => {
 const gbp = n => `£${parseFloat(n || 0).toFixed(2)}`;
 const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
 
-const lsGet = key => {
-  try { return JSON.parse(localStorage.getItem(key)) || []; }
-  catch { return []; }
+/**
+ * Generate a professional nomenclature for clinical documents:
+ * Example: Warwick_01APR_PA0003.pdf
+ */
+const generateNomenclature = inv => {
+  const prefix = 'Invoice';
+  const num    = (inv.number || '0000');
+  const surg   = (inv.surgery?.name || 'Pristine').replace(/[^a-z0-9]/gi, '_').slice(0, 40);
+  
+  const dateObj = inv.date ? new Date(inv.date) : new Date();
+  const months  = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
+  const dd      = String(dateObj.getDate()).padStart(2, '0');
+  const mmm     = months[dateObj.getMonth()];
+  const yyyy    = dateObj.getFullYear();
+  
+  return `${prefix}_${num}_${surg}_${dd}-${mmm}-${yyyy}.pdf`;
+};
+
+const lsGet = (key, def = []) => {
+  try {
+    const raw = localStorage.getItem(key);
+    if (raw === null) return def;
+    const val = JSON.parse(raw);
+    return (val === null || val === undefined) ? def : val;
+  } catch { return def; }
 };
 
 const lsSet = (key, val) => {
@@ -753,6 +802,7 @@ const openSurgeryForm = (surgery = null) => {
   document.getElementById('sf-name').value            = surgery?.name           || '';
   document.getElementById('sf-address').value         = surgery?.address        || '';
   document.getElementById('sf-contact').value         = surgery?.contact        || '';
+  document.getElementById('sf-email').value           = surgery?.email          || '';
   document.getElementById('sf-type').value            = surgery?.type           || 'percent';
   document.getElementById('sf-default-charge').value  = surgery?.defaultCharge  ?? '';
   document.getElementById('sf-share-percent').value   = surgery?.sharePercent   ?? '35';
@@ -777,6 +827,7 @@ const saveSurgery = () => {
     address, 
     type,
     contact: document.getElementById('sf-contact').value.trim(),
+    email: document.getElementById('sf-email').value.trim(),
     defaultCharge: parseFloat(document.getElementById('sf-default-charge').value) || null,
     sharePercent: parseFloat(document.getElementById('sf-share-percent').value) || 35,
     defaultRate: parseFloat(document.getElementById('sf-default-rate').value) || null
@@ -1018,6 +1069,7 @@ const collectInvoiceData = () => {
     inv.totalHours = sessions.reduce((a, b) => a + b.hours, 0);
     inv.totalDue = sessions.reduce((a, b) => a + b.amount, 0);
   }
+  inv.status = inv.status || 'finalised';
   return inv;
 };
 
@@ -1116,8 +1168,9 @@ const showPreview = (data = null) => {
   overlay.classList.remove('hidden');
   overlay.style.pointerEvents = 'auto';
   document.body.style.overflow = 'hidden';
+  document.body.style.overflow = 'hidden';
   document.getElementById('btn-finalise').onclick = () => finaliseInvoice(inv);
-  document.getElementById('btn-download-pdf').onclick = () => downloadPdf(inv);
+  document.getElementById('btn-download-pdf').onclick = e => downloadPdf(inv, e.currentTarget);
 };
 
 const finaliseInvoice = inv => {
@@ -1130,14 +1183,65 @@ const finaliseInvoice = inv => {
   showConfirm('Invoice Saved! Clear form for next one?', clearInvoiceForm);
 };
 
-const downloadPdf = inv => {
-  const root = document.getElementById('invoice-pdf-root');
-  const opt = {
-    margin: 0, filename: `Invoice_${inv.number}.pdf`, image: { type: 'jpeg', quality: 1.0 },
-    html2canvas: { scale: 2, useCORS: true, letterRendering: true, width: 720, scrollY: 0 },
-    jsPDF: { unit: 'px', format: [720, 1018], orientation: 'portrait' }
-  };
-  html2pdf().from(root).set(opt).save();
+const downloadPdf = async (inv, btnEl = null) => {
+  if (typeof html2pdf === 'undefined') {
+    alert('PDF Generator not available. Please wait a moment while it loads.');
+    return;
+  }
+
+  const btn = btnEl || document.getElementById('btn-download-pdf');
+  const oldText = btn ? btn.textContent : 'Download PDF';
+  if (btn) { btn.textContent = '⏳ Downloading...'; btn.disabled = true; }
+
+  try {
+    // 1. Target the already visible preview root
+    // This is the most stable source for html2pdf
+    const root = document.getElementById('invoice-pdf-root');
+    if (!root) throw new Error('Preview document not found.');
+
+    const filename = generateNomenclature(inv);
+    const opt = {
+      margin: 0, 
+      filename: filename, 
+      image: { type: 'jpeg', quality: 1.0 },
+      html2canvas: { scale: 2, useCORS: true, logging: false, width: 720 },
+      jsPDF: { unit: 'px', format: [720, 1018], orientation: 'portrait' }
+    };
+
+    // 2. Direct Download (standard save)
+    await html2pdf().from(root).set(opt).save();
+
+    // 3. Status prompt
+    if (inv.status !== 'sent') {
+      setTimeout(() => {
+        showConfirm(`Invoice ${inv.number} ready! Mark as SENT?`, () => {
+          const all = lsGet(LS.INVOICES);
+          const i = all.findIndex(x => x.id === inv.id);
+          if (i !== -1) { 
+            all[i].status = 'sent'; 
+            lsSet(LS.INVOICES, all); 
+            renderHistory(); 
+          }
+        });
+      }, 600);
+    }
+
+    // 4. Background Archive to server (Silently)
+    const auth = localStorage.getItem(LS.AUTH);
+    html2pdf().from(root).set(opt).outputPdf('blob').then(blob => {
+      fetch(`${API_URL}?type=upload-pdf&name=${filename}`, {
+         method: 'POST',
+         headers: { 'X-Auth': auth || '' },
+         body: blob
+      }).catch(() => {});
+    });
+
+  } catch (err) {
+    console.error('[PDF ERROR]', err);
+    alert('PDF generation failed. Please refresh and try again.');
+  } finally {
+    if (btn) { btn.textContent = oldText; btn.disabled = false; }
+  }
 };
 
 const closeModal = () => {
@@ -1158,9 +1262,18 @@ document.getElementById('btn-save-draft').addEventListener('click', () => {
   const inv = collectInvoiceData();
   if (!inv) return;
   inv.status = 'draft';
-  lsSet(LS.DRAFT, inv);
+  inv.id = inv.id || uid();
+  
+  let drafts = lsGet(LS.DRAFT);
+  if (!Array.isArray(drafts)) drafts = [];
+  
+  const idx = drafts.findIndex(d => d.id === inv.id || d.number === inv.number);
+  if (idx !== -1) drafts[idx] = inv;
+  else drafts.unshift(inv);
+  
+  lsSet(LS.DRAFT, drafts);
   showMsg(document.getElementById('create-msg'), '✅ Draft saved!', 'ok');
-  dbg('draft saved');
+  renderDrafts(); 
 });
 
 /** Load a draft invoice back into the form */
@@ -1187,6 +1300,18 @@ const loadDraft = inv => {
   }
 };
 
+const renderStatusBadge = status => {
+  const map = {
+    'draft':     'bg-slate-100 text-slate-600',
+    'finalised': 'bg-blue-50 text-blue-600 border border-blue-100',
+    'sent':      'bg-green-50 text-green-600 border border-green-100',
+    'emailed':   'bg-green-50 text-green-600 border border-green-100' // Alias
+  };
+  const cls = map[status] || 'bg-slate-100 text-slate-400';
+  const label = (status || 'finalised').toUpperCase();
+  return `<span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${cls}">${label}</span>`;
+};
+
 const clearInvoiceForm = () => {
   document.getElementById('inv-surgery').value = '';
   document.getElementById('inv-period').value = '';
@@ -1194,6 +1319,7 @@ const clearInvoiceForm = () => {
   document.getElementById('percent-rows').innerHTML = '';
   document.getElementById('rate-rows').innerHTML = '';
   document.getElementById('surgery-info-banner').classList.add('hidden');
+  lsSet(LS.DRAFT, null);
   const invoices = lsGet(LS.INVOICES);
   document.getElementById('inv-number').value = `PA-${String(invoices.length + 1).padStart(4, '0')}`;
   calcPercentTotals(); 
@@ -1214,46 +1340,208 @@ const renderHistory = () => {
   const invoices = lsGet(LS.INVOICES);
   const list     = document.getElementById('history-list');
   list.innerHTML = '';
-  if (!invoices.length) { list.innerHTML = '<p class="p-8 text-slate-400 text-sm">No finalised invoices.</p>'; return; }
+  if (!invoices.length) { 
+    list.innerHTML = '<p class="p-8 text-slate-400 text-sm italic text-center">No finalised invoices yet.</p>'; 
+  } else {
+    const table = document.createElement('table');
+    table.className = 'w-full text-sm leading-relaxed';
+    table.innerHTML = `
+      <thead>
+        <tr class="text-[10px] uppercase font-bold text-brand-700 bg-brand-50 border-b border-slate-200">
+          <th class="px-6 py-4 text-left w-24">Actions</th>
+          <th class="px-4 py-4 text-left">Invoice #</th>
+          <th class="px-4 py-4 text-left">Surgery</th>
+          <th class="px-4 py-4 text-left font-bold">Total Due</th>
+          <th class="px-4 py-4 text-left">Status</th>
+          <th class="px-4 py-4 text-left">Created</th>
+        </tr>
+      </thead>
+      <tbody id="hist-body"></tbody>`;
+    list.appendChild(table);
+
+    invoices.forEach(inv => {
+      const tr = document.createElement('tr');
+      tr.className = 'hist-row border-b border-slate-100 hover:bg-brand-50/50 transition-colors group';
+      tr.innerHTML = `
+        <td class="px-6 py-4">
+          <div class="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
+            <button onclick="viewHistoryInvoice('${inv.id}')" title="View" class="w-8 h-8 flex items-center justify-center bg-brand-700 text-white rounded-lg shadow-sm hover:scale-110 transition-all">👁</button>
+            <button onclick="editHistoryInvoice('${inv.id}')" title="Edit" class="w-8 h-8 flex items-center justify-center bg-white text-slate-500 rounded-lg shadow-sm border border-slate-200 hover:text-brand-700 hover:border-brand-500 transition-all">✎</button>
+            <button onclick="duplicateHistoryInvoice('${inv.id}')" title="Duplicate/Copy" class="w-8 h-8 flex items-center justify-center bg-white text-slate-500 rounded-lg shadow-sm border border-slate-200 hover:text-green-600 hover:border-green-500 transition-all">⎘</button>
+            <button onclick="emailHistoryInvoice('${inv.id}')" title="Email" class="w-8 h-8 flex items-center justify-center bg-white text-slate-500 rounded-lg shadow-sm border border-slate-200 hover:text-brand-700 hover:border-brand-500 transition-all">✉</button>
+            <button onclick="deleteHistoryInvoice('${inv.id}')" title="Delete" class="w-8 h-8 flex items-center justify-center bg-white text-red-400 rounded-lg border border-red-50 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all">🗑</button>
+          </div>
+        </td>
+        <td class="px-4 py-4 font-mono font-bold text-slate-900">${inv.number}</td>
+        <td class="px-4 py-4 font-medium text-slate-700">${escHtml(inv.surgery?.name || '—')}</td>
+        <td class="px-4 py-4 font-bold text-brand-700 text-base">${gbp(inv.totalDue)}</td>
+        <td class="px-4 py-4">${renderStatusBadge(inv.status)}</td>
+        <td class="px-4 py-4 text-slate-400 text-[10px] font-medium">${inv.date ? new Date(inv.date).toLocaleDateString('en-GB') : '—'}</td>`;
+      document.getElementById('hist-body').appendChild(tr);
+    });
+  }
+  renderDrafts();
+};
+
+const renderDrafts = () => {
+  let drafts = lsGet(LS.DRAFT);
+  if (!Array.isArray(drafts)) drafts = (drafts && drafts.id) ? [drafts] : [];
+  
+  const wrap = document.getElementById('drafts-list');
+  wrap.innerHTML = '';
+  if (!drafts.length) { 
+    wrap.innerHTML = '<p class="p-6 text-slate-400 text-sm italic">No saved drafts found.</p>'; 
+    return; 
+  }
 
   const table = document.createElement('table');
-  table.className = 'w-full text-sm';
+  table.className = 'w-full text-xs';
   table.innerHTML = `
     <thead>
-      <tr class="text-xs text-brand-700 bg-brand-50 border-b border-slate-200">
-        <th class="px-4 py-3 text-left w-24">Actions</th>
+      <tr class="bg-slate-50 text-slate-500 border-b border-slate-200 text-[10px] uppercase font-bold">
+        <th class="px-6 py-3 text-left w-20">Action</th>
         <th class="px-4 py-3 text-left">Invoice #</th>
         <th class="px-4 py-3 text-left">Surgery</th>
         <th class="px-4 py-3 text-left">Period</th>
-        <th class="px-4 py-3 text-left font-bold">Total Due</th>
-        <th class="px-4 py-3 text-left">Date</th>
+        <th class="px-4 py-3 text-left font-bold text-brand-700">Due</th>
       </tr>
     </thead>
-    <tbody id="hist-body"></tbody>`;
-  list.appendChild(table);
+    <tbody id="draft-body"></tbody>`;
+  wrap.appendChild(table);
 
-  invoices.forEach(inv => {
+  drafts.forEach((d, idx) => {
     const tr = document.createElement('tr');
-    tr.className = 'hist-row border-b border-slate-100 hover:bg-brand-50 transition-colors';
+    tr.className = 'border-b border-slate-50 hover:bg-slate-50/50 transition-colors';
     tr.innerHTML = `
-      <td class="px-4 py-3">
+      <td class="px-6 py-3">
         <div class="flex gap-2">
-          <button onclick="viewHistoryInvoice('${inv.id}')" class="text-[10px] uppercase bg-brand-700 text-white px-2 py-1 rounded font-bold shadow-sm">View</button>
-          <button onclick="deleteHistoryInvoice('${inv.id}')" class="text-[10px] uppercase bg-red-600 text-white px-2 py-1 rounded font-bold shadow-sm">Del</button>
+          <button onclick="restoreDraftFromList(${idx})" class="bg-brand-500 hover:bg-brand-600 text-white px-2 py-1 rounded text-[10px] uppercase font-bold transition">Restore</button>
+          <button onclick="deleteDraftFromList(${idx})" class="text-red-400 hover:text-red-600 font-bold text-lg">×</button>
         </div>
       </td>
-      <td class="px-4 py-3 font-mono text-brand-700 font-bold">${escHtml(inv.number)}</td>
-      <td class="px-4 py-3 font-medium text-slate-800">${escHtml(inv.surgery?.name || '—')}</td>
-      <td class="px-4 py-3 text-slate-500">${escHtml(inv.period || '—')}</td>
-      <td class="px-4 py-3 font-bold text-brand-700">${gbp(inv.totalDue)}</td>
-      <td class="px-4 py-3 text-slate-400 text-xs">${inv.date ? new Date(inv.date).toLocaleDateString('en-GB') : '—'}</td>`;
-    document.getElementById('hist-body').appendChild(tr);
+      <td class="px-4 py-3 font-bold text-slate-700">${d.number || '—'}</td>
+      <td class="px-4 py-3 text-slate-600">${escHtml(d.surgery?.name || '—')}</td>
+      <td class="px-4 py-3 text-slate-400 italic">${d.period || '—'}</td>
+      <td class="px-4 py-3 font-bold text-slate-700">${gbp(d.totalDue)}</td>`;
+    document.getElementById('draft-body').appendChild(tr);
+  });
+};
+
+window.restoreDraftFromList = idx => {
+  let drafts = lsGet(LS.DRAFT);
+  if (!Array.isArray(drafts)) drafts = (drafts && drafts.id) ? [drafts] : [];
+  
+  if (drafts[idx]) {
+    loadDraft(drafts[idx]);
+    switchTab('create');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+};
+
+window.deleteDraftFromList = idx => {
+  showConfirm('Permanently delete this saved draft?', () => {
+    const drafts = lsGet(LS.DRAFT);
+    drafts.splice(idx, 1);
+    lsSet(LS.DRAFT, drafts);
+    renderDrafts();
   });
 };
 
 window.viewHistoryInvoice = id => {
   const inv = lsGet(LS.INVOICES).find(i => i.id === id);
   if (inv) showPreview(inv);
+};
+
+window.editHistoryInvoice = id => {
+  const inv = lsGet(LS.INVOICES).find(x => x.id === id);
+  if (!inv) return;
+  showConfirm('Edit this finalised invoice? This will load it back into the creation form.', () => {
+    loadDraft(inv); 
+    switchTab('create');
+  });
+};
+
+window.duplicateHistoryInvoice = id => {
+  const inv = lsGet(LS.INVOICES).find(x => x.id === id);
+  if (!inv) return;
+  
+  showConfirm('Duplicate this invoice to create a new one? (A new number and today\'s date will be assigned)', () => {
+    const clone = JSON.parse(JSON.stringify(inv));
+    clone.id = uid();
+    // Generate latest sequential number
+    const list = lsGet(LS.INVOICES);
+    clone.number = `PA-${String(list.length + 1).padStart(4, '0')}`;
+    clone.date = new Date().toISOString().split('T')[0];
+    
+    loadDraft(clone);
+    switchTab('create');
+  });
+};
+
+window.emailHistoryInvoice = async id => {
+  const inv = lsGet(LS.INVOICES).find(x => x.id === id);
+  if (!inv) return;
+  
+  // Show a loading feedback
+  const btn = event.currentTarget;
+  const oldText = btn.textContent;
+  btn.textContent = '⏳';
+  btn.disabled = true;
+
+  try {
+    // 1. Generate PDF blob (behind the scenes)
+    const container = document.createElement('div');
+    container.style.position = 'absolute';
+    container.style.left = '-9999px';
+    container.innerHTML = buildInvoiceHtml(inv);
+    document.body.appendChild(container);
+    
+    const root = container.querySelector('#invoice-pdf-root');
+    const opt = { margin: 0, filename: `Inv_${inv.number}.pdf`, image: { type: 'jpeg', quality: 1.0 }, html2canvas: { scale: 1.5, useCORS: true, width: 720 }, jsPDF: { unit: 'px', format: [720, 1018] }};
+    
+    const pdfBlob = await html2pdf().from(root).set(opt).outputPdf('blob');
+    document.body.removeChild(container);
+
+    // 2. Upload to server
+    const auth = localStorage.getItem(LS.AUTH);
+    const fileName = generateNomenclature(inv);
+    const upRes = await fetch(`${API_URL}?type=upload-pdf&name=${fileName}`, {
+       method: 'POST',
+       headers: { 'X-Auth': auth || '' },
+       body: pdfBlob
+    });
+    const upData = await upRes.json();
+    if (!upRes.ok) throw new Error('Upload failed');
+
+    // 3. Open Email with Link
+    let baseUrl = window.location.href.split('?')[0].split('#')[0].replace('index.html','');
+    const cfg = lsGet(LS.CONFIG);
+    if (cfg && cfg.baseUrl) {
+      baseUrl = cfg.baseUrl.endsWith('/') ? cfg.baseUrl : cfg.baseUrl + '/';
+    }
+    
+    const link = `${baseUrl}${upData.url}`;
+    const email = inv.surgery?.email || '';
+    const subject = encodeURIComponent(`Invoice ${inv.number} - Pristine Aesthetics`);
+    const body = encodeURIComponent(`Dear ${inv.surgery?.name || 'Team'},\n\nPlease find your invoice (${inv.number}) for the period ${inv.period || 'as discussed'} at the link below:\n\n🔗 VIEW INVOICE: ${link}\n\nTotal Due: ${gbp(inv.totalDue)}\n\nBest Regards,\nPristine Aesthetics Ltd`);
+    
+    // 4. Update status to SENT
+    inv.status = 'sent';
+    const all = lsGet(LS.INVOICES);
+    const idx = all.findIndex(i => i.id === inv.id);
+    if (idx !== -1) {
+      all[idx].status = 'sent';
+      lsSet(LS.INVOICES, all);
+      renderHistory();
+    }
+
+    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
+  } catch (err) {
+    alert('Failed to generate sharing link: ' + err.message);
+  } finally {
+    btn.textContent = oldText;
+    btn.disabled = false;
+  }
 };
 
 window.deleteHistoryInvoice = id => {
@@ -1563,7 +1851,12 @@ const initApp = async () => {
     loadFromFile(LS.INVOICES),
     loadFromFile(LS.LOGS),
     loadFromFile(LS.DRAFT),
+    loadFromFile(LS.CONFIG),
   ]);
+
+  // Pre-fill config fields
+  const cfg = lsGet(LS.CONFIG);
+  if (cfg && cfg.baseUrl) document.getElementById('set-base-url').value = cfg.baseUrl;
 
   document.querySelector('main').style.opacity = '1';
   document.querySelector('main').style.transition = 'opacity .3s';
@@ -1584,12 +1877,9 @@ const initApp = async () => {
   updateLogFieldVisibility();
 
   // 5. Load draft if it exists
-  const raw = localStorage.getItem(LS.DRAFT);
-  if (raw && raw !== '[]' && raw !== 'null') {
-    try {
-      const d = JSON.parse(raw);
-      if (d && d.number) showConfirm('A saved draft was found. Load it?', () => loadDraft(d));
-    } catch(e) { dbg('draft parse error', e); }
+  const d = lsGet(LS.DRAFT, null);
+  if (d && d.number && (d.rows?.length || d.sessions?.length)) {
+    showConfirm('A saved draft was found. Load it back into the form?', () => loadDraft(d));
   }
 
   // 6. Start with one empty row for convenience
@@ -1598,6 +1888,13 @@ const initApp = async () => {
 
   dbg('App initialised (file-backed storage active)');
 };
+
+document.getElementById('btn-save-config').addEventListener('click', () => {
+  const baseUrl = document.getElementById('set-base-url').value.trim();
+  const config = { baseUrl };
+  lsSet(LS.CONFIG, config);
+  alert('App configuration saved and synced to server!');
+});
 
 // 7. Initialise only if authenticated
 checkAuth().then(ok => { if (ok) initApp(); });

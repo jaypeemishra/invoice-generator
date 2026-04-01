@@ -6,9 +6,10 @@
 define('DEBUG_MODE', true);
 define('DATA_DIR',   __DIR__ . '/data/');
 define('AUTH_FILE',  DATA_DIR . 'auth.json');
+define('PDF_DIR',    DATA_DIR . 'pdfs/');
 define('DEFAULT_PW', 'pristine123');
 
-const ALLOWED_TYPES = ['surgeries', 'invoices', 'logs', 'draft', 'auth'];
+const ALLOWED_TYPES = ['surgeries', 'invoices', 'logs', 'draft', 'auth', 'upload-pdf', 'config'];
 
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json; charset=utf-8');
@@ -56,6 +57,22 @@ if (($_GET['type'] ?? '') === 'login') {
     exit;
 }
 
+// ── Special Route: PDF Upload ─────────────────────────────────────────────
+if (($_GET['type'] ?? '') === 'upload-pdf' && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (!isAuthorized()) jsonError(401, 'Unauthorized.');
+    if (!is_dir(PDF_DIR)) mkdir(PDF_DIR, 0755, true);
+    
+    $name = $_GET['name'] ?? 'invoice.pdf';
+    $name = str_replace(['/', '\\'], '', $name); // Basic sanitize
+    
+    $body = file_get_contents('php://input');
+    if (!$body) jsonError(400, 'Empty content.');
+    
+    file_put_contents(PDF_DIR . $name, $body);
+    echo json_encode(['ok' => true, 'url' => 'data/pdfs/' . $name]);
+    exit;
+}
+
 // ── Special Route: Change Password ────────────────────────────────────────
 if (($_GET['type'] ?? '') === 'change-password' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     // First verify current password (which should be in X-Auth)
@@ -95,8 +112,11 @@ if ($method === 'GET') {
 // ── Handlers ───────────────────────────────────────────────────────────────
 
 function handleGet(string $file): void {
+    $type = $_GET['type'] ?? '';
     if (!file_exists($file)) {
-        echo '[]';
+        // Return {} for single-object types like config/draft, [] for others
+        $singleTypes = ['config', 'draft', 'auth'];
+        echo in_array($type, $singleTypes, true) ? '{}' : '[]';
         exit;
     }
     echo file_get_contents($file);
@@ -105,8 +125,11 @@ function handleGet(string $file): void {
 
 function handlePost(string $file): void {
     $body = file_get_contents('php://input');
-    if (!$body) jsonError(400, 'Empty content.');
-    if (json_decode($body) === null) jsonError(400, 'Invalid JSON.');
+    if ($body === null || $body === '') jsonError(400, 'Empty content.');
+    
+    // Check for valid JSON (null is a valid JSON value)
+    $decoded = json_decode($body);
+    if ($decoded === null && trim($body) !== 'null') jsonError(400, 'Invalid JSON.');
 
     $written = file_put_contents($file, $body, LOCK_EX);
     if ($written === false) jsonError(500, 'Write failed.');
