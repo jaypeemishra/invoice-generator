@@ -9,7 +9,8 @@ define('AUTH_FILE',  DATA_DIR . 'auth.json');
 define('PDF_DIR',    DATA_DIR . 'pdfs/');
 define('DEFAULT_PW', 'pristine123');
 
-const ALLOWED_TYPES = ['surgeries', 'invoices', 'logs', 'draft', 'auth', 'upload-pdf', 'config'];
+define('BANK_DIR',   DATA_DIR . 'bank/');
+const ALLOWED_TYPES = ['surgeries', 'invoices', 'logs', 'draft', 'auth', 'upload-pdf', 'config', 'audit', 'archive', 'bank'];
 
 header('Access-Control-Allow-Origin: *');
 header('Content-Type: application/json; charset=utf-8');
@@ -88,7 +89,54 @@ if (($_GET['type'] ?? '') === 'change-password' && $_SERVER['REQUEST_METHOD'] ==
     exit;
 }
 
-// ── Protected Routes ──────────────────────────────────────────────────────
+
+
+// ── Special Route: Bank Records ───────────────────────────────────────────
+if (($_GET['type'] ?? '') === 'bank') {
+    if (!isAuthorized()) jsonError(401, 'Unauthorized.');
+    if (!is_dir(BANK_DIR)) mkdir(BANK_DIR, 0755, true);
+
+    $name = $_GET['name'] ?? '';
+    if (!$name) {
+        // List CSVS files
+        $files = array_values(array_filter(scandir(BANK_DIR), function($f) {
+            return str_ends_with(strtolower($f), '.csv');
+        }));
+        echo json_encode($files);
+        exit;
+    }
+
+    // Read and interpret CSV with robust delimiter detection
+    $name = str_replace(['/', '\\'], '', $name);
+    $path = BANK_DIR . $name;
+    if (!file_exists($path)) jsonError(404, 'File not found.');
+
+    $rows = [];
+    $content = file_get_contents($path);
+    // Strip UTF-8 BOM if present
+    $content = preg_replace('/^\xEF\xBB\xBF/', '', $content);
+    $lines = explode("\n", $content);
+    if (count($lines) < 2) jsonError(400, 'Empty file.');
+
+    // Detect delimiter
+    $firstLine = $lines[0];
+    $delimiter = str_contains($firstLine, ';') ? ';' : ',';
+
+    $headers = str_getcsv($lines[0], $delimiter);
+    $headers = array_map('trim', $headers);
+
+    for ($i = 1; $i < count($lines); $i++) {
+        $line = trim($lines[$i]);
+        if (!$line) continue;
+        $data = str_getcsv($line, $delimiter);
+        if (count($headers) === count($data)) {
+            $row = array_combine($headers, array_map('trim', $data));
+            $rows[] = $row;
+        }
+    }
+    echo json_encode($rows);
+    exit;
+}
 if (!isAuthorized()) {
     jsonError(401, 'Authentication required.');
 }
@@ -114,8 +162,8 @@ if ($method === 'GET') {
 function handleGet(string $file): void {
     $type = $_GET['type'] ?? '';
     if (!file_exists($file)) {
-        // Return {} for single-object types like config/draft, [] for others
-        $singleTypes = ['config', 'draft', 'auth'];
+        // Return {} for single-object types like config, [] for others
+        $singleTypes = ['config', 'auth'];
         echo in_array($type, $singleTypes, true) ? '{}' : '[]';
         exit;
     }

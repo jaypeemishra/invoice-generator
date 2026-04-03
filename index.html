@@ -15,6 +15,9 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap" rel="stylesheet" />
 
+  <!-- External Styles -->
+  <link rel="stylesheet" href="css/style.css">
+
   <script>
     tailwind.config = {
       theme: {
@@ -37,85 +40,22 @@
       }
     };
   </script>
-
-  <style>
-    /* ── Global ── */
-    body { font-family: 'Inter', sans-serif; background: #f8f5f0; color: #0f172a; }
-
-    /* ── Tab underline animation ── */
-    .tab-btn { position: relative; transition: color .2s; cursor: pointer; color: #64748b; }
-    .tab-btn::after {
-      content: '';
-      position: absolute; bottom: -2px; left: 0; right: 0; height: 3px;
-      background: #D9A5A0; border-radius: 2px;
-      transform: scaleX(0); transition: transform .25s ease;
-    }
-    .tab-btn.active { color: #023433; font-weight: 600; }
-    .tab-btn.active::after { transform: scaleX(1); }
-
-    /* ── Glass card ── */
-    .glass {
-      background: rgba(255, 255, 255, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(2, 52, 51, 0.1);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.03);
-    }
-
-    /* ── Input focus ring ── */
-    input, select, textarea {
-      background: #ffffff !important; color: #023433 !important;
-      border: 1px solid #cbd5e1;
-      padding: 0.5rem 0.75rem;
-      border-radius: 0.5rem;
-      transition: all .2s;
-    }
-    input:focus, select:focus, textarea:focus {
-      outline: none; border-color: #D9A5A0;
-      box-shadow: 0 0 0 3px rgba(217, 165, 160, 0.2);
-    }
-
-    /* ── Invoice print area (used by html2pdf) ── */
-    #invoice-preview {
-      background: #fff; color: #111;
-      font-family: 'Inter', sans-serif;
-      font-size: 13px; line-height: 1.6;
-    }
-    #invoice-preview table { width: 100%; border-collapse: collapse; }
-    #invoice-preview th, #invoice-preview td {
-      border: 1px solid #e2e8f0; padding: 8px 10px; text-align: left;
-    }
-    #invoice-preview th { background: #f8fafc; font-weight: 600; color: #023433; }
-    #invoice-preview .inv-header { border-bottom: 3px solid #D9A5A0; padding-bottom: 20px; margin-bottom: 20px; }
-    #invoice-preview .inv-footer { border-top: 2px solid #e5e7eb; margin-top: 20px; padding-top: 14px; font-size: 12px; color: #555; }
-
-    /* ── Surgery badge ── */
-    .surgery-card { transition: transform .15s, box-shadow .15s; background: white; }
-    .surgery-card:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(2, 52, 51, 0.08); }
-
-    /* ── History row ── */
-    .hist-row:hover { background: rgba(217, 165, 160, 0.1); }
-
-    /* ── Scrollbar ── */
-    ::-webkit-scrollbar { width: 6px; } 
-    ::-webkit-scrollbar-track { background: #f8f5f0; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
-  </style>
 </head>
 <body class="min-h-screen">
 
 <!-- ══════════ HEADER ══════════ -->
 <header class="pt-10 pb-6">
   <div class="max-w-6xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-6">
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-4 cursor-pointer" onclick="location.reload()">
       <div class="w-12 h-12 flex-shrink-0">
-        <svg viewBox="0 0 24 24" fill="none" stroke="#D9A5A0" stroke-width="1.5">
-          <path d="M12 2L2 12l10 10 10-10L12 2z" stroke-linecap="square"></path>
-          <path d="M12 6L6 12l6 6 6-6L12 6z" stroke-linecap="square"></path>
+        <svg viewBox="0 0 24 24" fill="none" stroke="#D9A5A0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 12l10 10 10-10L12 2z"></path>
+            <path d="M12 6L6 12l6 6 6-6L12 6z"></path>
         </svg>
       </div>
       <div>
         <h1 class="text-3xl font-playfair font-bold text-brand-700 tracking-wider">PRISTINE</h1>
-        <p class="text-[10px] text-brand-500 uppercase tracking-[0.3em] font-light -mt-1 pl-0.5">Aesthetics &amp; Wellness</p>
+        <p class="text-[10px] text-brand-500 uppercase tracking-[0.3em] font-light -mt-1 pl-0.5">Aesthetics</p>
       </div>
     </div>
     <nav class="flex gap-8">
@@ -124,6 +64,7 @@
       <button class="tab-btn text-sm font-medium" data-tab="history">History</button>
       <button class="tab-btn text-sm font-medium" data-tab="log">Daily Log</button>
       <button class="tab-btn text-sm font-medium" data-tab="settings">Settings</button>
+      <a href="mailto:support@pristineaesthetics.com" class="text-sm font-bold text-brand-500 hover:text-brand-600 transition flex items-center gap-1">🗣 Help / Support</a>
     </nav>
   </div>
 </header>
@@ -133,10 +74,12 @@
 
   <!-- TABS NAV -->
   <nav class="flex flex-wrap gap-4 sm:gap-6 border-b border-slate-200 mb-8">
-    <button class="tab-btn active pb-3 text-sm font-semibold tracking-wide" data-tab="surgeries">🏥 Surgeries</button>
+    <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="surgeries">🏥 Surgeries</button>
     <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="log">📋 Daily Log</button>
     <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="create">📄 Create Invoice</button>
-    <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="history">📁 History</button>
+    <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="history">📁 Saved Invoices</button>
+    <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="insights">📊 Financial Dashboard</button>
+    <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="audit">🛡 Security Log</button>
     <button class="tab-btn pb-3 text-sm font-semibold tracking-wide" data-tab="settings">⚙️ Settings</button>
   </nav>
 
@@ -153,23 +96,23 @@
       <div class="grid sm:grid-cols-2 gap-4">
         <div>
           <label class="block text-xs text-slate-500 mb-1">Surgery Name *</label>
-          <input id="sf-name" type="text" placeholder="e.g. High Field Dental" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <input id="sf-name" type="text" placeholder="e.g. High Field Dental" class="w-full" />
         </div>
         <div>
           <label class="block text-xs text-slate-500 mb-1">Address *</label>
-          <input id="sf-address" type="text" placeholder="Full address" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <input id="sf-address" type="text" placeholder="Full address" class="w-full" />
         </div>
         <div>
           <label class="block text-xs text-slate-500 mb-1">Contact / Role</label>
-          <input id="sf-contact" type="text" placeholder="e.g. Practice Manager" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <input id="sf-contact" type="text" placeholder="e.g. Practice Manager" class="w-full" />
         </div>
         <div>
           <label class="block text-xs text-slate-500 mb-1">Email Address</label>
-          <input id="sf-email" type="email" placeholder="surgery@example.com" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <input id="sf-email" type="email" placeholder="surgery@example.com" class="w-full" />
         </div>
         <div>
           <label class="block text-xs text-slate-500 mb-1">Default Invoice Type</label>
-          <select id="sf-type" class="w-full rounded-lg px-3 py-2 text-sm">
+          <select id="sf-type" class="w-full">
             <option value="percent">Type A – % Share</option>
             <option value="rate">Type B – Day / Hour Rate</option>
           </select>
@@ -178,20 +121,32 @@
         <!-- Type A pricing defaults -->
         <div id="sf-group-percent" class="contents">
           <div>
-            <label class="block text-xs text-slate-500 mb-1">Default Charge per Patient (£) <span class="text-slate-400">(Type A)</span></label>
-            <input id="sf-default-charge" type="number" min="0" step="0.01" placeholder="e.g. 120.00" class="w-full rounded-lg px-3 py-2 text-sm" />
+            <label class="block text-xs text-slate-500 mb-1">Default Charge (£)</label>
+            <input id="sf-default-charge" type="number" min="0" step="0.01" placeholder="e.g. 120.00" class="w-full" />
           </div>
           <div>
-            <label class="block text-xs text-slate-500 mb-1">Commission % <span class="text-slate-400">(Type A, default 35)</span></label>
-            <input id="sf-share-percent" type="number" min="0" max="100" step="0.1" placeholder="35" class="w-full rounded-lg px-3 py-2 text-sm" />
+            <label class="block text-xs text-slate-500 mb-1">Commission %</label>
+            <input id="sf-share-percent" type="number" min="0" max="100" step="0.1" placeholder="35" class="w-full" />
           </div>
         </div>
 
         <!-- Type B pricing defaults -->
         <div id="sf-group-rate" class="contents hidden">
           <div>
-            <label class="block text-xs text-slate-500 mb-1">Default Hourly Rate (£) <span class="text-slate-400">(Type B)</span></label>
-            <input id="sf-default-rate" type="number" min="0" step="0.5" placeholder="e.g. 35" class="w-full rounded-lg px-3 py-2 text-sm" />
+            <label class="block text-xs text-slate-500 mb-1">Hourly Rate (£)</label>
+            <input id="sf-default-rate" type="number" min="0" step="0.5" placeholder="e.g. 35" class="w-full" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Lunch (Hrs)</label>
+            <input id="sf-lunch-break" type="number" min="0" step="0.5" value="1.0" class="w-full text-brand-700 font-bold" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Default Start Time</label>
+            <input id="sf-default-start" type="time" class="w-full" value="09:00" />
+          </div>
+          <div>
+            <label class="block text-xs text-slate-500 mb-1">Default End Time</label>
+            <input id="sf-default-end" type="time" class="w-full" value="17:00" />
           </div>
         </div>
       </div>
@@ -210,260 +165,484 @@
 
   <!-- ████ TAB: CREATE INVOICE ████ -->
   <section id="tab-create" class="tab-pane hidden">
-    <h2 class="text-xl font-bold text-brand-700 mb-6">Create Invoice</h2>
+    <h2 class="text-xl font-bold text-brand-700 mb-6 font-playfair uppercase tracking-wide">Issue Document</h2>
 
-    <div class="glass rounded-2xl p-6 mb-6 space-y-5">
-      <!-- Invoice Meta -->
+    <div class="glass rounded-2xl p-6 mb-6 space-y-6">
       <div class="grid sm:grid-cols-3 gap-4">
         <div>
-          <label class="block text-xs text-slate-500 mb-1">Invoice #</label>
-          <input id="inv-number" type="text" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <label class="block text-[10px] items-center text-slate-400 font-bold uppercase mb-1">Invoice Number</label>
+          <input id="inv-number" type="text" class="w-full text-brand-700 font-bold" />
         </div>
         <div>
-          <label class="block text-xs text-slate-500 mb-1">Invoice Date</label>
-          <input id="inv-date" type="date" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Date</label>
+          <input id="inv-date" type="date" class="w-full" />
         </div>
         <div>
-          <label class="block text-xs text-slate-500 mb-1">Period / Month</label>
-          <input id="inv-period" type="text" placeholder="e.g. July 2025" class="w-full rounded-lg px-3 py-2 text-sm" />
+            <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Billing Month/Period</label>
+            <input id="inv-period" type="text" placeholder="e.g. September 2025" class="w-full font-semibold" />
         </div>
       </div>
 
-      <!-- Select Surgery -->
       <div class="grid sm:grid-cols-2 gap-4">
         <div>
-          <label class="block text-xs text-slate-500 mb-1">Select Surgery *</label>
-          <select id="inv-surgery" class="w-full rounded-lg px-3 py-2 text-sm">
-            <option value="">-- Choose Surgery --</option>
+          <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Target Surgery</label>
+          <select id="inv-surgery" class="w-full font-medium">
+            <option value="">-- Select Destination --</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs text-slate-500 mb-1">Invoice Type *</label>
-          <select id="inv-type" class="w-full rounded-lg px-3 py-2 text-sm">
-            <option value="percent">Type A – % Share (35%)</option>
-            <option value="rate">Type B – Day / Hour Rate</option>
+          <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Billing Type</label>
+          <select id="inv-type" class="w-full font-medium">
+            <option value="percent">Commission (%)</option>
+            <option value="rate">Hourly Rate (£)</option>
           </select>
         </div>
       </div>
 
-      <!-- Surgery info banner: shown after a surgery is selected -->
-      <div id="surgery-info-banner" class="hidden rounded-xl px-4 py-3 text-xs border border-brand-500/30"
-           style="background:rgba(217, 165, 160, 0.08);">
-        <div class="flex flex-wrap gap-x-6 gap-y-1 items-center">
-          <span class="text-brand-700 font-semibold" id="sib-name"></span>
-          <span class="text-slate-600" id="sib-address"></span>
-          <span id="sib-rate-info" class="font-mono text-brand-700 font-bold"></span>
+      <!-- Surgery info banner -->
+      <div id="surgery-info-banner" class="hidden rounded-2xl px-5 py-4 border border-brand-500/20 bg-brand-50/20">
+        <div class="flex flex-wrap gap-x-8 gap-y-1 items-center justify-between">
+          <div class="flex items-center gap-3">
+             <span class="p-1.5 bg-brand-700 text-white rounded-lg text-xs">🏥</span>
+             <span class="text-brand-700 font-black text-sm" id="sib-name"></span>
+          </div>
+          <span class="text-slate-500 text-xs italic" id="sib-address"></span>
+          <span id="sib-rate-info" class="bg-white text-brand-700 font-bold text-xs px-3 py-1 rounded-full border border-brand-100 shadow-sm"></span>
         </div>
-        <p class="text-slate-500 mt-1 text-xs" id="sib-hint"></p>
+        <p class="text-slate-400 mt-2 text-[10px] uppercase font-bold tracking-widest" id="sib-hint"></p>
       </div>
 
-      <!-- TYPE A: % Share -->
+      <!-- Import Log Data -->
+      <div class="flex items-center gap-4 p-4 bg-brand-700 text-white rounded-2xl shadow-xl">
+          <div class="flex flex-col flex-1">
+             <h4 class="text-[10px] font-black uppercase tracking-widest text-brand-200">Import from Logs</h4>
+             <p class="text-xs font-medium">Auto-populate items from your daily work logs</p>
+          </div>
+          <div class="flex items-center gap-2">
+             <input type="month" id="inv-import-month" class="px-3 py-1.5 rounded-lg text-sm border-none shadow-inner" />
+          </div>
+      </div>
+
+      <!-- TYPE A -->
       <div id="section-percent" class="space-y-4">
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <h3 class="text-sm font-semibold text-brand-700">Type A – Percentage Share</h3>
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+          <h3 class="text-xs font-black text-brand-700 uppercase tracking-widest">Commission Pricing</h3>
           <div class="flex gap-2">
-            <button id="btn-import-logs-percent" class="text-xs bg-brand-700 hover:bg-brand-600 text-white px-3 py-1.5 rounded-lg transition">📋 Import from Logs</button>
-            <button id="btn-add-row" class="text-xs bg-white border border-brand-500 text-brand-500 hover:bg-brand-50 px-3 py-1.5 rounded-lg transition">+ Add Row</button>
+            <button id="btn-import-logs-percent" class="text-[10px] font-black uppercase bg-brand-500 hover:bg-brand-600 text-white px-3 py-1.5 rounded-lg transition shadow-sm">🔄 Sync Logs</button>
+            <button id="btn-add-row" class="text-[10px] font-black uppercase bg-white border border-brand-200 text-brand-700 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition shadow-sm">+ Manual Add</button>
           </div>
         </div>
-        <div class="overflow-x-auto rounded-xl">
-          <table class="w-full text-xs text-slate-700">
-            <thead>
-              <tr class="bg-brand-50 text-brand-700">
-                <th class="px-3 py-2 text-left">Date</th>
-                <th class="px-3 py-2 text-left">No. Patients</th>
-                <th class="px-3 py-2 text-left">Treatment Charge (£)</th>
-                <th class="px-3 py-2 text-left">Total Earning (£)</th>
-                <th id="th-due-pct" class="px-3 py-2 text-left">Payment Due (£)</th>
-                <th class="px-3 py-2"></th>
-              </tr>
-            </thead>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead><tr class="text-slate-400 font-bold uppercase text-[9px]"><th class="px-2 py-3 text-left">Treatment Date</th><th class="px-2 py-3 text-left">Pats</th><th class="px-2 py-3 text-left">Gross Charge (£)</th><th class="px-2 py-3 text-left">Total (£)</th><th class="px-2 py-3 text-left">Net Share (£)</th><th class="px-2 py-3"></th></tr></thead>
             <tbody id="percent-rows"></tbody>
-            <tfoot>
-              <tr class="bg-slate-100 font-semibold text-slate-800">
-                <td colspan="3" class="px-3 py-2">Totals</td>
-                <td class="px-3 py-2" id="total-earning">£0.00</td>
-                <td class="px-3 py-2" id="total-due">£0.00</td>
-                <td></td>
-              </tr>
-            </tfoot>
           </table>
+        </div>
+        <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 font-black">
+           <div class="bg-slate-50 p-4 rounded-xl">
+              <p class="text-[9px] uppercase text-slate-400 mb-1">Gross Clinical Turn</p>
+              <p class="text-lg text-slate-500" id="total-earning">£0.00</p>
+           </div>
+           <div class="bg-brand-50 p-4 rounded-xl border border-brand-200">
+              <p class="text-[9px] uppercase text-brand-500 mb-1">Net Invoice Total</p>
+              <p class="text-2xl text-brand-700" id="total-due">£0.00</p>
+           </div>
         </div>
       </div>
 
-      <!-- TYPE B: Day/Hour Rate -->
       <div id="section-rate" class="space-y-4 hidden">
-        <h3 class="text-sm font-semibold text-brand-700">Type B – Day / Hour Rate</h3>
-        <div class="flex flex-wrap items-center justify-between gap-2">
-          <span class="text-xs text-slate-500">Add work sessions</span>
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2">
+          <h3 class="text-xs font-black text-brand-700 uppercase tracking-widest">Hourly Pricing</h3>
           <div class="flex gap-2">
-            <button id="btn-import-logs-rate" class="text-xs bg-brand-700 hover:bg-brand-600 text-white px-3 py-1.5 rounded-lg transition">📋 Import from Logs</button>
-            <button id="btn-add-session" class="text-xs bg-white border border-brand-500 text-brand-500 hover:bg-brand-50 px-3 py-1.5 rounded-lg transition">+ Add Session</button>
+            <button id="btn-import-logs-rate" class="text-[10px] font-black uppercase bg-brand-500 hover:bg-brand-600 text-white px-3 py-1.5 rounded-lg transition shadow-sm">🔄 Sync Logs</button>
+            <button id="btn-add-session" class="text-[10px] font-black uppercase bg-white border border-brand-200 text-brand-700 hover:bg-brand-100 px-3 py-1.5 rounded-lg transition shadow-sm">+ Manual Add</button>
           </div>
         </div>
-        <div class="overflow-x-auto rounded-xl">
-          <table class="w-full text-xs text-slate-700">
-            <thead>
-              <tr class="bg-brand-50 text-brand-700">
-                <th class="px-3 py-2 text-left">Date</th>
-                <th class="px-3 py-2 text-left">Start Time</th>
-                <th class="px-3 py-2 text-left">End Time</th>
-                <th class="px-3 py-2 text-left">Total Hours</th>
-                <th class="px-3 py-2 text-left">Rate (£/hr)</th>
-                <th class="px-3 py-2 text-left">Amount (£)</th>
-                <th class="px-3 py-2"></th>
-              </tr>
-            </thead>
+        <div class="overflow-x-auto">
+          <table class="w-full text-xs">
+            <thead><tr class="text-slate-400 font-bold uppercase text-[9px] font-black"><th class="px-2 py-3 text-left">Date</th><th class="px-2 py-3 text-left">Start</th><th class="px-2 py-3 text-left">End</th><th class="px-2 py-3 text-left">Lunch</th><th class="px-2 py-3 text-left">Net Hrs</th><th class="px-2 py-3 text-left">Rate/hr</th><th class="px-2 py-3 text-left">Amt Due</th><th class="px-2 py-3"></th></tr></thead>
             <tbody id="rate-rows"></tbody>
-            <tfoot>
-              <tr class="bg-slate-100 font-semibold text-slate-800">
-                <td colspan="3" class="px-3 py-2">Totals</td>
-                <td class="px-3 py-2" id="total-hours">0.00 hrs</td>
-                <td></td>
-                <td class="px-3 py-2" id="total-rate-amount">£0.00</td>
-                <td></td>
-              </tr>
-            </tfoot>
           </table>
+        </div>
+        <div class="grid grid-cols-2 gap-4 pt-4 border-t border-slate-100 font-black">
+           <div class="bg-slate-50 p-4 rounded-xl">
+              <p class="text-[9px] uppercase text-slate-400 mb-1">Total clinical Hrs</p>
+              <p class="text-lg text-slate-500" id="total-hours">0.00 hrs</p>
+           </div>
+           <div class="bg-brand-50 p-4 rounded-xl border border-brand-200">
+              <p class="text-[9px] uppercase text-brand-500 mb-1">Net Invoice Total</p>
+              <p class="text-2xl text-brand-700" id="total-rate-amount">£0.00</p>
+           </div>
         </div>
       </div>
 
-      <!-- Notes -->
       <div>
-        <label class="block text-xs text-slate-500 mb-1">Notes (optional)</label>
-        <textarea id="inv-notes" rows="2" placeholder="Additional notes…" class="w-full rounded-lg px-3 py-2 text-sm resize-none"></textarea>
+        <label class="block text-[10px] text-slate-400 font-bold uppercase mb-1">Document Appendix / Notes</label>
+        <textarea id="inv-notes" rows="2" placeholder="Clinical specific annotations…" class="w-full text-sm resize-none"></textarea>
       </div>
 
-      <!-- Actions -->
-      <div class="flex flex-wrap gap-3 pt-2">
-        <button id="btn-preview" class="bg-brand-700 hover:bg-brand-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition shadow-md">👁 Preview Invoice</button>
-        <button id="btn-save-draft" class="bg-slate-200 hover:bg-slate-300 text-slate-700 px-5 py-2 rounded-lg text-sm font-medium transition">💾 Save Draft</button>
-        <button id="btn-clear" onclick="showConfirm('Clear this invoice form?', clearInvoiceForm)" class="bg-slate-100 hover:bg-red-100 text-slate-500 hover:text-red-700 px-5 py-2 rounded-lg text-sm font-medium transition">🗑 Clear</button>
+      <div class="grid grid-cols-3 gap-3 pt-4">
+        <button id="btn-preview" class="col-span-1 bg-brand-700 hover:bg-brand-600 text-white py-3 rounded-xl text-xs font-black uppercase tracking-widest transition shadow-xl border-b-4 border-brand-900 active:border-0 active:translate-y-1">Preview PDF</button>
+        <button id="btn-save-draft" class="bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 py-3 rounded-xl text-xs font-bold uppercase transition">Save Draft</button>
+        <button id="btn-clear" class="bg-white border border-red-100 text-red-500 hover:bg-red-50 py-3 rounded-xl text-xs font-bold uppercase transition">Clear Form</button>
       </div>
-      <div id="create-msg" class="text-xs mt-1 hidden"></div>
+      <div id="create-msg" class="text-center font-bold"></div>
     </div>
   </section>
 
   <!-- ████ TAB: HISTORY ████ -->
-  <section id="tab-history" class="tab-pane hidden space-y-8">
-    <!-- Finalised Section -->
+  <section id="tab-history" class="tab-pane hidden space-y-10">
     <div>
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-xl font-bold text-brand-700">Finalised Invoices</h2>
-        <button id="btn-clear-history" class="text-[10px] uppercase font-bold text-red-600 bg-red-50 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded-lg transition border border-red-100 italic">Clear Records</button>
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-xl font-bold text-brand-700">Saved Invoices</h2>
+        <button id="btn-clear-history" class="text-[9px] font-black uppercase bg-red-50 text-red-600 px-3 py-1.5 rounded-lg border border-red-100 hover:bg-red-600 hover:text-white transition">Clear All</button>
       </div>
-      <div id="history-list" class="glass rounded-2xl overflow-hidden shadow-sm"></div>
+      <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black mb-6">Completed Invoices</p>
+      <div id="history-list" class="glass rounded-3xl overflow-hidden shadow-2xl border-none"></div>
     </div>
 
-    <!-- Drafts Section -->
-    <div class="pt-4 border-t border-slate-200">
-      <h3 class="text-lg font-bold text-slate-700 mb-4">Saved Drafts</h3>
-      <div id="drafts-list" class="glass rounded-2xl overflow-hidden shadow-sm border border-brand-500/10"></div>
+    <div>
+      <h3 class="text-lg font-black text-slate-800 mb-2">Pending Drafts</h3>
+      <p class="text-[10px] text-slate-400 uppercase tracking-widest font-black mb-6">Unsaved Work-in-Progress</p>
+      <div id="drafts-list" class="glass rounded-3xl overflow-hidden shadow-sm border border-brand-500/10"></div>
     </div>
   </section>
 
   <!-- ████ TAB: DAILY LOG ████ -->
   <section id="tab-log" class="tab-pane hidden">
-    <div class="flex items-center justify-between mb-6">
-      <h2 class="text-xl font-bold text-brand-700">Daily Log</h2>
-      <p class="text-xs text-slate-500">Record your work each day – import into any invoice later.</p>
+    <div class="flex flex-col mb-8">
+      <h2 class="text-2xl font-bold text-brand-700 tracking-tight">Clinical Work Diary</h2>
+      <p class="text-xs text-slate-500 font-medium mt-1">Record your daily activity for automated month-end reconciliation.</p>
     </div>
 
-    <!-- Log Entry Form -->
-    <div class="glass rounded-2xl p-6 mb-6 space-y-4">
-      <h3 class="text-sm font-semibold text-brand-700">Add Log Entry</h3>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="glass rounded-3xl p-8 mb-8 space-y-6 border border-brand-500/10 shadow-2xl">
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div>
-          <label class="block text-xs text-slate-500 mb-1">Surgery *</label>
-          <select id="log-surgery" class="w-full rounded-lg px-3 py-2 text-sm">
-            <option value="">-- Choose --</option>
+          <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Target Surgery</label>
+          <select id="log-surgery" class="w-full text-sm font-bold border-slate-200 focus:border-brand-500 rounded-xl transition-all h-11">
+            <option value="">-- Choose Practice --</option>
           </select>
         </div>
         <div>
-          <label class="block text-xs text-slate-500 mb-1">Date *</label>
-          <input id="log-date" type="date" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Service Date</label>
+          <input id="log-date" type="date" class="w-full h-11 rounded-xl text-sm" />
         </div>
         <div id="log-field-patients">
-          <label class="block text-xs text-slate-500 mb-1">No. of Patients</label>
-          <input id="log-patients" type="number" min="0" placeholder="0" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Patient Count</label>
+          <input id="log-patients" type="number" min="0" placeholder="0" class="w-full h-11 rounded-xl text-sm" />
         </div>
         <div id="log-field-charge">
-          <label class="block text-xs text-slate-500 mb-1">Charge per patient (£)</label>
-          <input id="log-charge" type="number" min="0" step="0.01" placeholder="0.00" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Fee / Patient (£)</label>
+          <input id="log-charge" type="number" min="0" step="0.01" class="w-full h-11 rounded-xl text-sm" />
         </div>
         <div id="log-field-start" class="hidden">
-          <label class="block text-xs text-slate-500 mb-1">Start Time</label>
-          <input id="log-start" type="time" value="08:30" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Session Start</label>
+          <input id="log-start" type="time" class="w-full h-11 rounded-xl text-sm" />
         </div>
         <div id="log-field-end" class="hidden">
-          <label class="block text-xs text-slate-500 mb-1">End Time</label>
-          <input id="log-end" type="time" value="16:30" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Session End</label>
+          <input id="log-end" type="time" class="w-full h-11 rounded-xl text-sm" />
         </div>
         <div id="log-field-rate" class="hidden">
-          <label class="block text-xs text-slate-500 mb-1">Rate (£/hr)</label>
-          <input id="log-rate" type="number" min="0" step="0.5" value="35" class="w-full rounded-lg px-3 py-2 text-sm" />
+          <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Agreed Rate (£)</label>
+          <input id="log-rate" type="number" class="w-full h-11 rounded-xl text-sm" />
         </div>
-        <div class="sm:col-span-2">
-          <label class="block text-xs text-slate-500 mb-1">Notes</label>
-          <input id="log-notes" type="text" placeholder="Optional notes…" class="w-full rounded-lg px-3 py-2 text-sm" />
+        <div id="log-field-lunch" class="hidden">
+          <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Lunch (h)</label>
+          <input id="log-lunch" type="number" class="w-full h-11 rounded-xl text-sm" />
         </div>
       </div>
-      <div id="log-calc-preview" class="text-xs text-brand-700 font-mono font-bold hidden bg-brand-50 px-3 py-2 rounded-lg border border-brand-500/20"></div>
-      <div class="flex gap-3 pt-1">
-        <button id="btn-save-log" class="bg-brand-700 hover:bg-brand-600 text-white px-6 py-2.5 rounded-xl text-sm font-medium transition shadow-md">+ Save Entry</button>
+      <div>
+        <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Shift Notes / Observations</label>
+        <input id="log-notes" type="text" placeholder="Treatments performed, exceptions, etc." class="w-full h-11 rounded-xl text-sm" />
       </div>
-      <div id="log-msg" class="text-xs font-semibold mt-2 hidden"></div>
+      <div id="log-calc-preview" class="text-[11px] text-brand-700 font-black bg-brand-50 px-5 py-4 rounded-2xl border-2 border-brand-500/10 hidden shadow-inner animate-pulse"></div>
+      <div class="flex gap-4 pt-2">
+        <button id="btn-save-log" class="flex-1 bg-brand-700 hover:bg-brand-600 text-white h-12 rounded-2xl text-xs font-black uppercase tracking-widest transition shadow-xl active:translate-y-1">Record Entry</button>
+        <button id="btn-cancel-log-edit" class="hidden bg-slate-100 hover:bg-slate-200 text-slate-500 h-12 px-8 rounded-2xl text-xs font-black uppercase transition">Cancel Edit</button>
+      </div>
+      <div id="log-msg" class="text-center font-bold"></div>
     </div>
 
-    <!-- Log Filter -->
-    <div class="glass rounded-2xl p-4 mb-4 flex flex-wrap gap-4 items-end border-none" style="background:#f0e9e7;">
-      <div>
-        <label class="block text-xs text-brand-700 font-bold mb-1">Filter by Surgery</label>
-        <select id="log-filter-surgery" class="rounded-lg px-3 py-2 text-sm border-none shadow-sm">
-          <option value="">All Surgeries</option>
+    <!-- Filter Bar -->
+    <div class="glass rounded-3xl p-6 mb-8 flex flex-wrap gap-6 items-end border-none bg-brand-900 text-white shadow-2xl">
+      <div class="flex-1 min-w-[200px]">
+        <label class="block text-[9px] font-black uppercase text-brand-200 tracking-widest mb-2">Filter Portfolio</label>
+        <select id="log-filter-surgery" class="w-full h-10 rounded-xl px-4 text-xs font-bold border-none text-brand-900">
+          <option value="">All Practices</option>
         </select>
       </div>
-      <div>
-        <label class="block text-xs text-brand-700 font-bold mb-1">Month</label>
-        <input id="log-filter-month" type="month" class="rounded-lg px-3 py-2 text-sm border-none shadow-sm" />
+      <div class="w-48">
+        <label class="block text-[9px] font-black uppercase text-brand-200 tracking-widest mb-2">Clinical month</label>
+        <input id="log-filter-month" type="month" class="w-full h-10 rounded-xl px-4 text-xs font-bold border-none text-brand-900" />
       </div>
-      <button id="btn-apply-log-filter" class="bg-brand-700 hover:bg-brand-600 text-white px-5 py-2 rounded-lg text-sm font-medium transition">Apply</button>
-      <button id="btn-clear-log-filter" class="text-brand-700 hover:underline text-xs font-medium">Clear filter</button>
+      <button id="btn-apply-log-filter" class="bg-brand-500 hover:bg-brand-600 text-brand-900 h-10 px-8 rounded-xl text-[10px] font-black uppercase tracking-widest transition shadow-lg">Filter</button>
+      <button id="btn-clear-log-filter" class="text-brand-200 hover:text-white text-[10px] font-black uppercase py-2">Clear</button>
     </div>
 
-    <!-- Log Table -->
-    <div id="log-table-wrap" class="glass rounded-2xl overflow-hidden">
-      <p id="no-log-msg" class="text-slate-500 text-sm p-6">No log entries yet.</p>
+    <div id="log-table-wrap" class="glass rounded-3xl overflow-hidden p-8 border-none shadow-sm">
+      <p class="text-slate-500 text-sm italic py-20 text-center">Your work diary is currently empty.</p>
     </div>
   </section>
 
-  <!-- ████ TAB: SETTINGS ████ -->
-  <section id="tab-settings" class="tab-pane hidden">
-    <h2 class="text-xl font-bold text-brand-700 mb-6">Settings</h2>
-    
-    <div class="grid md:grid-cols-2 gap-6 items-start">
-      <div class="glass rounded-2xl p-6">
-        <h3 class="text-sm font-semibold text-brand-700 mb-4">Core App Settings</h3>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-xs text-slate-500 mb-1">Production URL (Base URL)</label>
-            <input id="set-base-url" type="url" placeholder="https://your-domain.com/invoice-gen/" class="w-full" />
-            <p class="text-[10px] text-slate-400 mt-1 italic">Used for sharing invoice links in emails. Leave blank for "localhost".</p>
+  <!-- TAB: INSIGHTS -->
+  <section id="tab-insights" class="tab-pane hidden">
+    <div class="flex flex-wrap items-center justify-between mb-10 gap-6">
+      <div class="flex flex-col">
+          <h2 class="text-2xl font-black text-brand-700 leading-tight">Financial Dashboard</h2>
+          <p class="text-[10px] text-slate-400 font-bold uppercase tracking-[0.2em] mt-1">View your practice's complete financial health</p>
+      </div>
+      <div class="flex flex-wrap gap-2 items-center">
+        <select id="ins-surgery" class="text-[11px] px-4 h-10 rounded-xl border-slate-200 bg-white shadow-sm font-bold text-brand-700">
+          <option value="">Performance: All</option>
+        </select>
+        <div class="flex items-center gap-1 bg-white border border-slate-200 rounded-2xl p-1 shadow-sm">
+           <input type="month" id="ins-from" class="text-[10px] px-3 py-1.5 border-none bg-transparent font-bold" />
+           <span class="text-[10px] text-slate-300 font-black px-1">→</span>
+           <input type="month" id="ins-to" class="text-[10px] px-3 py-1.5 border-none bg-transparent font-bold" />
+        </div>
+        <button id="btn-download-insights" class="bg-brand-700 hover:bg-brand-600 text-white h-10 px-5 rounded-2xl text-[10px] font-black uppercase tracking-widest transition flex items-center gap-2 shadow-xl">
+           <span class="text-sm">⬇</span> Export PDF
+        </button>
+      </div>
+    </div>
+
+    <!-- Practice Intelligence Navigation (Clean) -->
+    <div class="flex gap-4 border-b border-slate-100 mb-10 overflow-x-auto no-scrollbar">
+       <button id="btn-ins-fy" data-target="fy" class="ins-sub-tab active pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-brand-700 border-b-4 border-brand-500 transition-all whitespace-nowrap">Current Financial Year</button>
+       <button id="btn-ins-archive" data-target="archive" class="ins-sub-tab pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b-4 border-transparent transition-all whitespace-nowrap">Past Years</button>
+       <button id="btn-ins-bank" data-target="bank" class="ins-sub-tab pb-4 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 border-b-4 border-transparent transition-all whitespace-nowrap">Bank Statements & Activity</button>
+    </div>
+
+    <!-- VIEW: CURRENT FINANCIAL YEAR -->
+    <div id="ins-view-fy" class="ins-view space-y-10">
+        <div class="grid sm:grid-cols-3 gap-6">
+           <div class="glass p-8 rounded-[2rem] bg-brand-900 shadow-2xl text-white">
+              <p class="text-[10px] uppercase font-black text-brand-300 tracking-widest mb-2">FY Net Income</p>
+              <h4 id="fy-total-net" class="text-4xl font-black mb-1">£0.00</h4>
+              <p class="text-[8px] text-brand-400 font-bold uppercase tracking-widest">Aggregate earnings for this FY</p>
+           </div>
+           <div class="glass p-8 rounded-[2rem] bg-white shadow-xl">
+              <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-2">FY Gross Generated</p>
+              <h4 id="fy-total-gross" class="text-3xl font-black text-slate-800">£0.00</h4>
+           </div>
+           <div class="glass p-8 rounded-[2rem] bg-white shadow-xl">
+              <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-2">Avg Hourly Earnings</p>
+              <div class="flex items-end gap-3">
+                 <h4 id="fy-avg-yield" class="text-3xl font-black text-brand-700">£0.00</h4>
+                 <span class="text-[9px] font-black text-slate-400 uppercase mb-2">/hr avg</span>
+              </div>
+           </div>
+        </div>
+
+        <div class="glass rounded-[2.5rem] overflow-hidden shadow-2xl bg-white">
+           <div class="px-8 py-6 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+              <h3 class="text-xs font-black text-brand-700 uppercase tracking-widest">Financial Year Overview</h3>
+           </div>
+           <div id="fy-table-wrap" class="overflow-x-auto min-h-[400px]"></div>
+        </div>
+    </div>
+
+    <!-- VIEW: ARCHIVE (PAST YEARS) -->
+    <div id="ins-view-archive" class="ins-view hidden space-y-10">
+        <div class="glass rounded-[2.5rem] p-8 shadow-xl bg-white border-none">
+           <h3 class="text-sm font-black text-brand-700 uppercase mb-8">Past Financial Years</h3>
+           <div id="archive-list" class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              <p class="col-span-full p-20 text-center text-slate-400 text-xs italic">No archived financial years found.</p>
+           </div>
+        </div>
+    </div>
+
+    <!-- VIEW: BANK ACTIVITY -->
+    <div id="ins-view-bank" class="ins-view hidden space-y-8">
+
+       <!-- Top Controls Bar -->
+       <div class="flex items-center justify-between p-5 glass rounded-[2rem] bg-white shadow-lg">
+          <div class="flex items-center gap-4">
+             <div class="w-10 h-10 bg-brand-700 rounded-xl flex items-center justify-center text-white text-lg">🏦</div>
+             <div>
+                <h4 class="text-sm font-black text-brand-900">Bank Statement Analysis</h4>
+                <p class="text-[9px] text-brand-500 font-black uppercase tracking-widest">Tide Current Account</p>
+             </div>
           </div>
-          <button id="btn-save-config" class="bg-brand-700 hover:bg-brand-600 text-white w-full py-2.5 rounded-xl text-sm font-medium transition shadow-md">Save Configuration</button>
+          <div class="flex items-center gap-3">
+             <select id="bank-file-selector" class="text-xs border-slate-200 rounded-xl px-4 h-11 bg-slate-50 font-black text-brand-700 outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                <option value="">-- Choose Statement --</option>
+             </select>
+             <select id="bank-fy-selector" class="hidden text-xs border border-brand-200 rounded-xl px-4 h-11 bg-white font-black text-brand-700 outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                <option value="All Time">All Time</option>
+             </select>
+          </div>
+       </div>
+
+       <!-- KPI Cards Row -->
+       <div class="grid grid-cols-3 gap-6">
+          <div class="glass p-6 rounded-[2rem] bg-brand-700 text-white shadow-xl relative group">
+             <p class="text-[9px] uppercase font-black text-brand-300 tracking-widest mb-2">Period Net Flow <span class="text-brand-500 font-normal normal-case ml-1 cursor-help" title="Difference between Income and Expenses for this statement period (excludes starting balance)">ⓘ</span></p>
+             <h4 id="bank-net-cash" class="text-3xl font-black mb-1">£0.00</h4>
+             <p id="bank-net-msg" class="text-[8px] font-black text-brand-300 uppercase mt-2"></p>
+          </div>
+          <div class="glass p-6 rounded-[2rem] bg-white shadow-lg">
+             <p class="text-[9px] uppercase font-black text-green-500 tracking-widest mb-2">💰 Money In</p>
+             <h4 id="bank-total-in" class="text-3xl font-black text-slate-800">£0.00</h4>
+          </div>
+          <div class="glass p-6 rounded-[2rem] bg-white shadow-lg">
+             <p class="text-[9px] uppercase font-black text-red-400 tracking-widest mb-2">💸 Expenses</p>
+             <h4 id="bank-total-out" class="text-3xl font-black text-slate-800">£0.00</h4>
+          </div>
+       </div>
+
+       <!-- Monthly Bars + Category Chart -->
+       <div class="grid lg:grid-cols-5 gap-8">
+          <!-- Monthly Cashflow Chart -->
+          <div class="lg:col-span-3 glass p-8 rounded-[2.5rem] bg-white shadow-xl relative overflow-hidden">
+             <div class="flex items-center justify-between mb-8 z-10 relative">
+                <div>
+                   <h4 class="text-xs font-black text-brand-700 uppercase tracking-widest">Monthly Trends</h4>
+                   <div class="flex items-center gap-2 mt-2">
+                       <button id="btn-chart-cashflow" class="text-[9px] px-3 py-1 bg-slate-100 rounded-full font-black text-brand-700 uppercase tracking-widest transition-colors shadow-sm">CASHFLOW</button>
+                       <button id="btn-chart-expenses" class="text-[9px] px-3 py-1 bg-transparent rounded-full font-black text-slate-400 uppercase tracking-widest transition-colors hover:bg-slate-50">EXPENSES breakdown</button>
+                   </div>
+                </div>
+                <!-- Dynamic legend rendering anchor -->
+                <div id="chart-legend-cashflow" class="flex flex-col items-end gap-1.5 text-[8px] font-black uppercase tracking-widest text-slate-400">
+                   <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded bg-brand-500 inline-block"></span>Income</span>
+                   <span class="flex items-center gap-1.5"><span class="w-2 h-2 rounded bg-red-300 inline-block"></span>Expenses</span>
+                </div>
+                <div id="chart-legend-expenses" class="hidden flex-col items-end gap-1.5 text-[8px] font-black uppercase tracking-widest text-slate-400">
+                </div>
+             </div>
+             <div id="bank-monthly-bars" class="flex items-end gap-3 h-40 overflow-x-auto no-scrollbar pb-2 transition-opacity duration-300">
+                <p class="text-slate-400 text-[10px] italic m-auto">Load a statement to see monthly trends</p>
+             </div>
+          </div>
+
+          <!-- Spending Concentration -->
+          <div class="lg:col-span-2 glass p-8 rounded-[2.5rem] bg-white shadow-xl">
+             <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest mb-6">Spending by Category</h4>
+             <div id="bank-cat-chart" class="space-y-5">
+                <p class="text-slate-400 text-[10px] italic py-10 text-center">Load statement for breakdown</p>
+             </div>
+          </div>
+       </div>
+
+       <!-- Transaction Feed -->
+       <div class="glass rounded-[2.5rem] overflow-hidden shadow-2xl bg-white">
+          <div class="px-8 py-5 border-b border-slate-50 bg-slate-50/50 flex items-center justify-between">
+             <h4 class="text-xs font-black text-brand-700 uppercase tracking-widest">Recent Transactions</h4>
+             <span class="text-[9px] text-slate-400 font-black">Most recent 60 entries</span>
+          </div>
+          <div id="bank-recent-list" class="divide-y divide-slate-50 max-h-[600px] overflow-y-auto">
+             <p class="p-20 text-center text-slate-400 text-xs italic font-medium">Select a statement to load practice activity</p>
+          </div>
+       </div>
+    </div>
+  </section>
+
+  <!-- ████ TAB: AUDIT LOG ████ -->
+  <section id="tab-audit" class="tab-pane hidden">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+         <h2 class="text-2xl font-black text-brand-700 leading-tight">Security Audit Trail</h2>
+         <p class="text-[10px] text-slate-400 font-bold uppercase mt-1 tracking-widest">Immutable system activity logs</p>
+      </div>
+      <button id="btn-clear-audit" class="bg-red-50 text-red-600 border border-red-100 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest hover:bg-red-600 hover:text-white transition">Full Purge</button>
+    </div>
+    <div class="glass rounded-3xl overflow-hidden shadow-2xl border-none">
+      <div id="audit-table-wrap" class="overflow-x-auto">
+        <p class="p-20 text-slate-400 text-sm italic text-center">System logs are empty.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TAB: SETTINGS -->
+  <section id="tab-settings" class="tab-pane hidden">
+    <h2 class="text-2xl font-black text-brand-700 mb-10 tracking-tight">System Configuration</h2>
+    
+    <div class="grid md:grid-cols-2 gap-8 items-start">
+      <div class="glass rounded-[2rem] p-10 border-none shadow-2xl bg-white">
+        <h3 class="text-sm font-black text-brand-700 uppercase tracking-widest mb-8 border-b border-slate-50 pb-4">Core Identity</h3>
+        <div class="space-y-6">
+          <div>
+            <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Clinical Portal URL</label>
+            <input id="set-base-url" type="url" placeholder="https://domain.com/invoice-gen/" class="w-full text-xs font-bold h-12 rounded-xl border-slate-100" />
+            <p class="text-[10px] text-slate-400 mt-2 italic px-1">Required for document link generation in clinical notifications.</p>
+          </div>
+            <div class="grid grid-cols-2 gap-6">
+            <div>
+              <label class="block text-[10px] items-center font-black uppercase text-slate-400 tracking-widest mb-2">Sender Email</label>
+              <input id="set-sender-email" type="email" placeholder="swati@gmail.com" class="w-full text-xs font-bold h-12 rounded-xl border-slate-100" />
+            </div>
+            <div>
+              <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Archive CC</label>
+              <input id="set-cc-email" type="email" placeholder="backup@email.com" class="w-full text-xs font-bold h-12 rounded-xl border-slate-100" />
+            </div>
+          </div>
+          <div class="grid grid-cols-1 gap-6">
+            <div>
+              <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Clinical Payee (Practitioner Name)</label>
+              <input id="set-bank-payee" type="text" placeholder="Dr. S Mishra" class="w-full text-xs font-bold h-12 rounded-xl border-slate-100" />
+            </div>
+          </div>
+          <div class="grid grid-cols-3 gap-4">
+            <div>
+              <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Bank Name</label>
+              <input id="set-bank-name" type="text" placeholder="Tide Business" class="w-full text-xs font-bold h-12 rounded-xl border-slate-100" />
+            </div>
+            <div>
+              <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Sort Code</label>
+              <input id="set-bank-sort" type="text" placeholder="04-XX-XX" class="w-full text-xs font-bold h-12 rounded-xl border-slate-100" />
+            </div>
+            <div>
+              <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Account #</label>
+              <input id="set-bank-acc" type="text" placeholder="XXXXXXXX" class="w-full text-xs font-bold h-12 rounded-xl border-slate-100" />
+            </div>
+          </div>
+          <button id="btn-save-config" class="bg-brand-700 hover:bg-brand-600 text-white w-full py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition shadow-xl border-b-4 border-brand-900 active:border-0 active:translate-y-1">Commit clinical Configuration</button>
         </div>
       </div>
 
-      <div class="glass rounded-2xl p-6">
-        <h3 class="text-sm font-semibold text-brand-700 mb-4">Change Access Password</h3>
-        <div class="space-y-4">
-          <div>
-            <label class="block text-xs text-slate-500 mb-1">New Password</label>
-            <input id="set-new-pw" type="password" placeholder="Min 4 characters" class="w-full" />
+      <div class="glass rounded-[2rem] p-10 border-none shadow-xl bg-slate-50">
+        <h3 class="text-sm font-black text-brand-700 uppercase tracking-widest mb-8 border-b border-slate-100 pb-4">Legacy Data management</h3>
+        <div class="space-y-6">
+          <p class="text-[10px] text-slate-500 font-bold uppercase leading-relaxed">Move records to the archive for performance history.</p>
+          <div class="flex items-center gap-4">
+             <input id="set-fy-year" type="number" placeholder="2024" class="flex-1 text-sm font-black h-12 rounded-xl border-none shadow-inner" />
+             <button id="btn-archive-fy" class="bg-brand-700 hover:bg-brand-600 text-white h-12 px-8 rounded-xl text-[10px] font-black uppercase transition-all shadow-lg">Archive Records</button>
           </div>
-          <button id="btn-change-pw" class="bg-brand-700 hover:bg-brand-600 text-white w-full py-2.5 rounded-xl text-sm font-medium transition shadow-md">Update Password</button>
         </div>
-        <div id="set-pw-msg" class="text-xs mt-2 hidden"></div>
+      </div>
+
+      <div class="glass rounded-[2rem] p-10 border-none shadow-xl bg-white md:col-span-2">
+        <h3 class="text-sm font-black text-brand-700 uppercase tracking-widest mb-8 border-b border-slate-50 pb-4">Infrastructure & Security</h3>
+        <div class="grid md:grid-cols-2 gap-10">
+           <div class="space-y-4">
+              <label class="block text-[10px] font-black uppercase text-slate-400 tracking-widest mb-2">Update Portal Access Password</label>
+              <div class="flex items-center gap-4">
+                 <input id="set-new-pw" type="password" placeholder="••••••••" class="flex-1 h-12 rounded-xl text-lg tracking-widest font-black border-slate-100" />
+                 <button id="btn-change-pw" class="bg-brand-700 hover:bg-brand-600 text-white h-12 px-10 rounded-xl text-[10px] font-black uppercase transition shadow-xl">Update</button>
+              </div>
+              <div id="set-pw-msg" class="font-bold"></div>
+           </div>
+           <div class="bg-brand-50/30 p-8 rounded-3xl border-2 border-dashed border-brand-500/20">
+              <h4 class="text-[10px] font-black uppercase text-brand-700 tracking-[0.2em] mb-4">System Backup</h4>
+              <div class="grid grid-cols-2 gap-6 text-[9px] uppercase tracking-widest font-black text-slate-500 leading-relaxed">
+                 <div>
+                    <p class="mb-2 text-brand-500">System Files:</p>
+                    <ul class="space-y-1 opacity-70">
+                       <li>config.json · synced</li>
+                       <li>surgeries.json · synced</li>
+                       <li>logs.json · synced</li>
+                    </ul>
+                 </div>
+                 <div>
+                    <p class="mb-2 text-brand-500">Storage Path:</p>
+                    <p class="opacity-70 leading-normal">/data/secure_storage/</p>
+                    <p class="mt-4 text-brand-700 cursor-help" title="Local-First Sync Active">Status: Integrated ✓</p>
+                 </div>
+              </div>
+           </div>
+        </div>
       </div>
     </div>
   </section>
@@ -473,1432 +652,105 @@
   <!-- LOGIN OVERLAY -->
   <div id="login-overlay" class="fixed inset-0 bg-[#f8f5f0] z-[200] flex flex-col items-center justify-center p-6 hidden">
     <div class="mb-12 flex flex-col items-center text-center">
-      ${BRAND.logoSvg}
-      <h1 class="font-playfair text-3xl text-brand-700 mt-4 tracking-wider uppercase">PRISTINE</h1>
-      <p class="text-[10px] uppercase tracking-[0.3em] text-brand-500 font-medium">Aesthetics & Wellness</p>
+      <div class="w-20 h-20 mb-6 drop-shadow-2xl">
+         <svg viewBox="0 0 24 24" fill="none" stroke="#D9A5A0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 12l10 10 10-10L12 2z"></path>
+            <path d="M12 6L6 12l6 6 6-6L12 6z"></path>
+         </svg>
+      </div>
+      <h1 class="font-playfair text-4xl text-brand-700 mt-4 tracking-[0.2em] font-black uppercase">PRISTINE</h1>
+      <p class="text-[10px] uppercase tracking-[0.5em] text-brand-500 font-black mt-2">clinician Management Suite</p>
     </div>
     
-    <div class="glass rounded-3xl p-8 w-full max-w-sm shadow-2xl flex flex-col items-center border border-brand-500/10">
-      <h3 class="text-lg font-bold text-brand-700 mb-6">Restricted Access</h3>
-      <div class="w-full space-y-4">
+    <div class="glass rounded-[3rem] p-12 w-full max-w-sm shadow-[0_40px_100px_-20px_rgba(2,52,51,0.2)] flex flex-col items-center border border-white/50 backdrop-blur-3xl">
+      <h3 class="text-sm font-black text-brand-700 mb-10 uppercase tracking-widest">Identify to clinical Proceed</h3>
+      <div class="w-full space-y-6">
         <div>
-          <label class="block text-xs text-slate-500 mb-2 font-semibold">Enter Password</label>
-          <input id="login-pw" type="password" placeholder="••••••••" class="w-full text-center text-lg tracking-widest py-3 border-2 border-brand-500/20 focus:border-brand-500 transition-all rounded-2xl" />
+          <label class="block text-[10px] text-slate-400 font-black uppercase tracking-widest mb-3 text-center">Access Credentials</label>
+          <input id="login-pw" type="password" placeholder="••••••••" class="w-full text-center text-2xl tracking-[0.5em] py-4 border-none shadow-inner bg-slate-50 focus:bg-white focus:ring-4 focus:ring-brand-500/10 transition-all rounded-3xl" />
         </div>
-        <button id="btn-login" class="bg-brand-700 hover:bg-brand-600 text-white w-full py-3.5 rounded-2xl text-sm font-bold tracking-widest uppercase transition shadow-xl hover:translate-y-[-2px]">Unlock App</button>
+        <button id="btn-login" class="bg-brand-700 hover:bg-brand-600 text-white w-full py-5 rounded-3xl text-xs font-black tracking-[0.2em] uppercase transition shadow-2xl hover:translate-y-[-4px] active:translate-y-0 border-b-8 border-brand-900 active:border-0 h-16">Unlock Portal</button>
       </div>
-      <p id="login-err" class="text-red-500 text-xs mt-4 hidden font-medium"></p>
-      <p class="text-slate-400 text-[10px] mt-8 uppercase tracking-widest font-bold">Secure Access Portal</p>
+      <p id="login-err" class="text-red-500 text-xs mt-6 hidden font-black tracking-wide bg-red-50 px-4 py-2 rounded-full border border-red-100"></p>
+      <p class="text-slate-300 text-[9px] mt-12 uppercase tracking-widest font-black opacity-50">Enterprise Grade Security</p>
     </div>
   </div>
 
   <!-- INVOICE PREVIEW MODAL -->
-  <div id="modal-overlay" class="fixed inset-0 bg-black/70 z-50 flex items-start justify-center pt-8 px-4 hidden overflow-y-auto">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-3xl mb-8">
-      <div class="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-        <h3 class="text-gray-800 font-bold text-lg">Invoice Preview</h3>
-        <div class="flex gap-2">
-          <button id="btn-download-pdf" class="bg-brand-500 hover:bg-brand-600 text-white px-4 py-2 rounded-lg text-sm font-medium transition">⬇ Download PDF</button>
-          <button id="btn-finalise" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-medium transition">✅ Finalise & Save</button>
-          <button id="btn-close-modal" class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm font-medium transition">✕ Close</button>
+  <div id="modal-overlay" class="fixed inset-0 bg-brand-900/40 backdrop-blur-sm z-[150] flex items-start justify-center pt-10 px-4 hidden overflow-y-auto">
+    <div class="bg-white rounded-[2rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.3)] w-full max-w-3xl mb-10 overflow-hidden border border-white/20">
+      <div class="flex items-center justify-between px-8 py-6 border-b border-slate-50 bg-slate-50/50">
+        <div class="flex flex-col">
+           <h3 class="text-brand-900 font-black text-lg uppercase tracking-tight">Invoice Preview</h3>
+           <p class="text-[9px] text-slate-400 uppercase font-black tracking-widest">Please double check your invoice details</p>
+        </div>
+        <div class="flex gap-3">
+          <button id="btn-download-pdf" class="bg-brand-500 hover:bg-brand-600 text-white h-11 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition shadow-xl active:translate-y-1">⬇ Download PDF</button>
+          <button id="btn-finalise" class="bg-brand-700 hover:bg-brand-900 text-white h-11 px-6 rounded-2xl text-[10px] font-black uppercase tracking-widest transition shadow-xl active:translate-y-1">✅ Finalise & Save</button>
+          <button id="btn-close-modal" class="bg-white text-slate-400 hover:text-slate-800 h-11 px-5 rounded-2xl text-xs font-black uppercase transition border border-slate-100">✕</button>
         </div>
       </div>
-      <div id="invoice-preview" class="p-8"></div>
+      <div id="invoice-preview" class="p-0 scale-95 origin-top transition-transform duration-500 select-none pointer-events-none"></div>
     </div>
   </div>
 
   <!-- CUSTOM CONFIRM MODAL -->
-  <div id="confirm-modal" class="fixed inset-0 bg-black/60 z-[100] flex items-center justify-center hidden p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 text-center">
-      <h3 id="confirm-msg" class="text-lg font-bold text-slate-800 mb-4">Are you sure?</h3>
-      <div class="flex gap-3">
-        <button id="btn-confirm-cancel" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 py-2 rounded-lg font-medium">Cancel</button>
-        <button id="btn-confirm-yes" class="flex-1 bg-red-600 hover:bg-red-700 text-white py-2 rounded-lg font-medium">Yes</button>
+  <div id="confirm-modal" class="fixed inset-0 bg-brand-900/60 backdrop-blur-md z-[250] flex items-center justify-center hidden p-6">
+    <div class="bg-white rounded-[2.5rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.5)] w-full max-w-md p-10 text-center border border-white/20">
+      <div id="confirm-icon" class="w-16 h-16 bg-blue-50 text-blue-500 rounded-2xl border border-blue-100 flex items-center justify-center text-2xl mx-auto mb-6 shadow-inner">💬</div>
+      <h3 id="confirm-msg" class="text-2xl font-black text-brand-900 mb-4 tracking-tighter">Are you sure?</h3>
+      <p id="confirm-subtext" class="text-xs text-slate-400 font-medium leading-relaxed mb-10 px-4">This action will update your clinic records.</p>
+      <div class="flex gap-4">
+        <button id="btn-confirm-cancel" class="flex-1 bg-slate-50 hover:bg-slate-100 text-slate-500 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition">Cancel</button>
+        <button id="btn-confirm-yes" class="flex-1 bg-brand-700 hover:bg-brand-900 text-white py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest shadow-2xl transition-all hover:scale-105 active:scale-95">Yes, Proceed</button>
       </div>
     </div>
   </div>
 
-<!-- ══════════ SCRIPT ══════════ -->
-<script>
-// ─────────────────────────────────────────────────────────────────────────────
-// CONSTANTS & BRANDING
-// ─────────────────────────────────────────────────────────────────────────────
-const BRAND = {
-  name    : 'Pristine Aesthetics Ltd',
-  address : '90 King Harolds Way, Bexleyheath, DA7 5QZ',
-  ref     : 'Swati Mishra / Dental Hygienist / GDC Number 286837',
-  bank    : 'Tide Bank',
-  sortCode: '04-06-05',
-  account : '14424579',
-  payee   : 'Pristine Aesthetics Ltd',
-  primary : '#023433',
-  accent  : '#D9A5A0',
-  logoSvg : `<svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" viewBox="0 0 24 24" fill="none" stroke="#D9A5A0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M12 2L2 12l10 10 10-10L12 2z"></path>
-                <path d="M12 6L6 12l6 6 6-6L12 6z"></path>
-             </svg>`
-};
-
-const LS = {
-  SURGERIES : 'pa_surgeries',
-  INVOICES  : 'pa_invoices',
-  DRAFT     : 'pa_draft',
-  LOGS      : 'pa_logs',
-  AUTH      : 'pa_auth',
-  CONFIG    : 'pa_config'
-};
-
-const FILE_TYPE = {
-  [LS.SURGERIES]: 'surgeries',
-  [LS.INVOICES] : 'invoices',
-  [LS.LOGS]     : 'logs',
-  [LS.DRAFT]    : 'draft',
-  [LS.CONFIG]   : 'config'
-};
-
-const API_URL = 'api.php';
-const DEBUG   = true;
-
-// ─────────────────────────────────────────────────────────────────────────────
-// UTILITY HELPERS
-// ─────────────────────────────────────────────────────────────────────────────
-
-const dbg = (...args) => DEBUG && console.debug('[InvGen]', ...args);
-
-const showMsg = (el, text, type = 'info') => {
-  el.textContent = text;
-  el.className = `text-xs mt-1 ${type === 'error' ? 'text-red-400' : 'text-green-400'}`;
-  el.classList.remove('hidden');
-  setTimeout(() => el.classList.add('hidden'), 3500);
-};
-
-const gbp = n => `£${parseFloat(n || 0).toFixed(2)}`;
-const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-
-/**
- * Generate a professional nomenclature for clinical documents:
- * Example: Warwick_01APR_PA0003.pdf
- */
-const generateNomenclature = inv => {
-  const prefix = 'Invoice';
-  const num    = (inv.number || '0000');
-  const surg   = (inv.surgery?.name || 'Pristine').replace(/[^a-z0-9]/gi, '_').slice(0, 40);
-  
-  const dateObj = inv.date ? new Date(inv.date) : new Date();
-  const months  = ['JAN','FEB','MAR','APR','MAY','JUN','JUL','AUG','SEP','OCT','NOV','DEC'];
-  const dd      = String(dateObj.getDate()).padStart(2, '0');
-  const mmm     = months[dateObj.getMonth()];
-  const yyyy    = dateObj.getFullYear();
-  
-  return `${prefix}_${num}_${surg}_${dd}-${mmm}-${yyyy}.pdf`;
-};
-
-const lsGet = (key, def = []) => {
-  try {
-    const raw = localStorage.getItem(key);
-    if (raw === null) return def;
-    const val = JSON.parse(raw);
-    return (val === null || val === undefined) ? def : val;
-  } catch { return def; }
-};
-
-const lsSet = (key, val) => {
-  try { localStorage.setItem(key, JSON.stringify(val)); } catch(e) { dbg('lsSet error', e); }
-  syncToFile(key, val);
-};
-
-const syncToFile = async (key, val) => {
-  const type = FILE_TYPE[key];
-  if (!type) return;
-  const auth = localStorage.getItem(LS.AUTH);
-  try {
-    const res = await fetch(`${API_URL}?type=${type}`, {
-      method : 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Auth': auth || '' },
-      body   : JSON.stringify(val),
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    dbg(`Synced "${type}" to file.`);
-  } catch (err) {
-    dbg(`syncToFile failed for "${type}":`, err.message);
-  }
-};
-
-const loadFromFile = async key => {
-  const type = FILE_TYPE[key];
-  if (!type) return lsGet(key);
-  const auth = localStorage.getItem(LS.AUTH);
-  try {
-    const res  = await fetch(`${API_URL}?type=${type}`, {
-      headers: { 'X-Auth': auth || '' }
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
-    localStorage.setItem(key, JSON.stringify(data));
-    dbg(`Loaded "${type}" from file.`);
-    return data;
-  } catch (err) {
-    dbg(`loadFromFile failed for "${type}", falling back to localStorage:`, err.message);
-    return lsGet(key);
-  }
-};
-
-const timeToHours = (start, end) => {
-  const [sh, sm] = start.split(':').map(Number);
-  const [eh, em] = end.split(':').map(Number);
-  const total = (eh * 60 + em) - (sh * 60 + sm);
-  return total > 0 ? total / 60 : 0;
-};
-
-// ── AUTHENTICATION ──
-const checkAuth = async () => {
-  const auth = localStorage.getItem(LS.AUTH);
-  if (!auth) {
-    document.getElementById('login-overlay').classList.remove('hidden');
-    return false;
-  }
-  try {
-    const res = await fetch(`${API_URL}?type=login`, { headers: { 'X-Auth': auth } });
-    if (!res.ok) throw new Error('Invalid');
-    return true;
-  } catch (err) {
-    document.getElementById('login-overlay').classList.remove('hidden');
-    return false;
-  }
-};
-
-const handleLogin = async () => {
-  const pw = document.getElementById('login-pw').value;
-  const errEl = document.getElementById('login-err');
-  if (!pw) return;
-  
-  try {
-    const res = await fetch(`${API_URL}?type=login`, { headers: { 'X-Auth': pw } });
-    if (!res.ok) throw new Error('Invalid Password.');
-    
-    localStorage.setItem(LS.AUTH, pw);
-    document.getElementById('login-overlay').classList.add('hidden');
-    initApp();
-  } catch (err) {
-    errEl.textContent = err.message;
-    errEl.classList.remove('hidden');
-  }
-};
-
-const changePassword = async () => {
-  const newPw = document.getElementById('set-new-pw').value;
-  const msgEl = document.getElementById('set-pw-msg');
-  const auth = localStorage.getItem(LS.AUTH);
-  
-  if (newPw.length < 4) { showMsg(msgEl, 'Min 4 characters.', 'error'); return; }
-  
-  try {
-    const res = await fetch(`${API_URL}?type=change-password`, { 
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Auth': auth },
-      body: JSON.stringify({ newPassword: newPw })
-    });
-    if (!res.ok) throw new Error('Failed to update.');
-    localStorage.setItem(LS.AUTH, newPw);
-    showMsg(msgEl, '✅ Password updated successfully!', 'ok');
-    document.getElementById('set-new-pw').value = '';
-  } catch (err) {
-    showMsg(msgEl, err.message, 'error');
-  }
-};
-
-document.getElementById('btn-login').onclick = handleLogin;
-document.getElementById('login-pw').onkeypress = e => { if (e.key === 'Enter') handleLogin(); };
-document.getElementById('btn-change-pw').onclick = changePassword;
-
-// ── CUSTOM CONFIRM SYSTEM ──
-let confirmCallback = null;
-const showConfirm = (msg, onConfirm) => {
-  document.getElementById('confirm-msg').textContent = msg;
-  confirmCallback = onConfirm;
-  document.getElementById('confirm-modal').classList.remove('hidden');
-};
-
-document.getElementById('btn-confirm-yes').onclick = () => {
-  if (confirmCallback) confirmCallback();
-  document.getElementById('confirm-modal').classList.add('hidden');
-};
-document.getElementById('btn-confirm-cancel').onclick = () => {
-  document.getElementById('confirm-modal').classList.add('hidden');
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// TAB NAVIGATION
-// ─────────────────────────────────────────────────────────────────────────────
-
-const switchTab = tabId => {
-  document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tabId));
-  document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('hidden', p.id !== `tab-${tabId}`));
-};
-
-document.querySelectorAll('.tab-btn').forEach(btn => {
-  btn.addEventListener('click', () => switchTab(btn.dataset.tab));
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MODULE: SURGERIES
-// ─────────────────────────────────────────────────────────────────────────────
-
-let editingSurgeryId = null;
-
-const renderSurgeries = () => {
-  const surgeries = lsGet(LS.SURGERIES);
-  const list      = document.getElementById('surgery-list');
-  const noMsg     = document.getElementById('no-surgeries-msg');
-  noMsg.classList.toggle('hidden', surgeries.length > 0);
-  list.querySelectorAll('.surgery-card').forEach(c => c.remove());
-  surgeries.forEach(s => {
-    const card = document.createElement('div');
-    card.className = 'surgery-card glass rounded-xl p-5 flex flex-col gap-2 transition-all hover:translate-y-[-2px]';
-    card.innerHTML = `
-      <div class="flex items-start justify-between gap-2">
-        <div>
-          <p class="font-semibold text-brand-700 text-sm">${escHtml(s.name)}</p>
-          <p class="text-xs text-slate-500">${escHtml(s.address)}</p>
-          <p class="text-[10px] uppercase tracking-wider text-slate-400 mt-1 font-bold">
-            ${s.type === 'percent' ? `Type A – ${s.sharePercent || 35}% Share` : `Type B – Hourly Rate`}
-          </p>
-        </div>
-      </div>
-      <div class="flex flex-wrap gap-2 mt-2">
-        <button class="btn-edit-surgery text-xs bg-brand-700 hover:bg-brand-600 px-3 py-1.5 rounded-lg text-white transition shadow-sm" data-id="${s.id}">Edit</button>
-        <button class="btn-del-surgery text-xs bg-slate-100 hover:bg-red-100 text-slate-500 hover:text-red-700 px-3 py-1.5 rounded-lg transition" data-id="${s.id}">Delete</button>
-      </div>`;
-    list.appendChild(card);
-  });
-  populateSurgeryDropdown(surgeries);
-};
-
-const escHtml = str => (str ?? '').toString().replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-
-const populateSurgeryDropdown = surgeries => {
-  const sel = document.getElementById('inv-surgery');
-  const cur = sel.value;
-  sel.innerHTML = '<option value="">-- Choose Surgery --</option>';
-  surgeries.forEach(s => {
-    const opt = document.createElement('option');
-    opt.value = s.id;
-    opt.textContent = s.name;
-    sel.appendChild(opt);
-  });
-  if (cur) sel.value = cur;
-};
-
-const updateSurgeryFormFields = () => {
-  const type = document.getElementById('sf-type').value;
-  document.getElementById('sf-group-percent').classList.toggle('hidden', type !== 'percent');
-  document.getElementById('sf-group-rate').classList.toggle('hidden', type !== 'rate');
-};
-document.getElementById('sf-type').addEventListener('change', updateSurgeryFormFields);
-
-const openSurgeryForm = (surgery = null) => {
-  editingSurgeryId = surgery ? surgery.id : null;
-  document.getElementById('surgery-form-title').textContent = surgery ? 'Edit Surgery' : 'New Surgery';
-  document.getElementById('sf-name').value            = surgery?.name           || '';
-  document.getElementById('sf-address').value         = surgery?.address        || '';
-  document.getElementById('sf-contact').value         = surgery?.contact        || '';
-  document.getElementById('sf-email').value           = surgery?.email          || '';
-  document.getElementById('sf-type').value            = surgery?.type           || 'percent';
-  document.getElementById('sf-default-charge').value  = surgery?.defaultCharge  ?? '';
-  document.getElementById('sf-share-percent').value   = surgery?.sharePercent   ?? '35';
-  document.getElementById('sf-default-rate').value    = surgery?.defaultRate    ?? '';
-  updateSurgeryFormFields();
-  document.getElementById('surgery-form-wrap').classList.remove('hidden');
-};
-
-const closeSurgeryForm = () => {
-  document.getElementById('surgery-form-wrap').classList.add('hidden');
-  editingSurgeryId = null;
-};
-
-const saveSurgery = () => {
-  const name    = document.getElementById('sf-name').value.trim();
-  const address = document.getElementById('sf-address').value.trim();
-  const type    = document.getElementById('sf-type').value;
-  if (!name || !address) return;
-  
-  const payload = { 
-    name, 
-    address, 
-    type,
-    contact: document.getElementById('sf-contact').value.trim(),
-    email: document.getElementById('sf-email').value.trim(),
-    defaultCharge: parseFloat(document.getElementById('sf-default-charge').value) || null,
-    sharePercent: parseFloat(document.getElementById('sf-share-percent').value) || 35,
-    defaultRate: parseFloat(document.getElementById('sf-default-rate').value) || null
-  };
-  
-  const surgeries = lsGet(LS.SURGERIES);
-  if (editingSurgeryId) {
-    const idx = surgeries.findIndex(s => s.id === editingSurgeryId);
-    if (idx > -1) surgeries[idx] = { ...surgeries[idx], ...payload };
-  } else {
-    surgeries.push({ id: uid(), ...payload });
-  }
-  lsSet(LS.SURGERIES, surgeries);
-  closeSurgeryForm();
-  renderSurgeries();
-};
-
-const deleteSurgery = id => {
-  const surgeries = lsGet(LS.SURGERIES).filter(s => s.id !== id);
-  lsSet(LS.SURGERIES, surgeries);
-  renderSurgeries();
-};
-
-document.getElementById('btn-add-surgery').addEventListener('click', () => openSurgeryForm());
-document.getElementById('btn-save-surgery').addEventListener('click', saveSurgery);
-document.getElementById('btn-cancel-surgery').addEventListener('click', closeSurgeryForm);
-
-document.getElementById('surgery-list').addEventListener('click', e => {
-  const id = e.target.dataset.id;
-  if (!id) return;
-  if (e.target.classList.contains('btn-edit-surgery')) {
-    const s = lsGet(LS.SURGERIES).find(x => x.id === id);
-    if (s) openSurgeryForm(s);
-  } else if (e.target.classList.contains('btn-del-surgery')) {
-    showConfirm('Delete this surgery?', () => deleteSurgery(id));
-  }
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MODULE: INVOICE TYPE TOGGLE
-// ─────────────────────────────────────────────────────────────────────────────
-
-const toggleInvoiceType = type => {
-  document.getElementById('section-percent').classList.toggle('hidden', type !== 'percent');
-  document.getElementById('section-rate').classList.toggle('hidden', type !== 'rate');
-};
-
-document.getElementById('inv-type').addEventListener('change', e => toggleInvoiceType(e.target.value));
-
-const onSurgerySelected = surgId => {
-  const s = lsGet(LS.SURGERIES).find(x => x.id === surgId);
-  const banner = document.getElementById('surgery-info-banner');
-  if (!s) { banner.classList.add('hidden'); return; }
-  
-  // Update type and toggle UI
-  document.getElementById('inv-type').value = s.type;
-  toggleInvoiceType(s.type);
-  
-  // Update Banner info
-  document.getElementById('sib-name').textContent = s.name;
-  document.getElementById('sib-address').textContent = s.address;
-  const rateInfo = s.type === 'percent' ? `${s.sharePercent || 35}% Share` : `${gbp(s.defaultRate)}/hr`;
-  document.getElementById('sib-rate-info').textContent = rateInfo;
-  banner.classList.remove('hidden');
-
-  // Update Table Headers for %
-  const pctTh = document.getElementById('th-due-pct');
-  if (pctTh) pctTh.textContent = `Due (${s.sharePercent || 35}%) (£)`;
-
-  // Auto-fill existing empty rows or add new one
-  if (s.type === 'percent') {
-    const rows = document.querySelectorAll('#percent-rows tr');
-    if (rows.length === 0) {
-      addPercentRow('', '', s.defaultCharge || '');
-    } else {
-      rows.forEach(tr => {
-        const chgInp = tr.querySelector('.p-row-charge');
-        if (!chgInp.value) chgInp.value = s.defaultCharge || '';
-        calcPercentRow(tr);
-      });
-      calcPercentTotals();
-    }
-  } else {
-    const rows = document.querySelectorAll('#rate-rows tr');
-    if (rows.length === 0) {
-      addRateRow('', '', '', s.defaultRate || '');
-    } else {
-      rows.forEach(tr => {
-        const rateInp = tr.querySelector('.r-row-rate');
-        if (!rateInp.value) rateInp.value = s.defaultRate || '';
-        calcRateRow(tr);
-      });
-      calcRateTotals();
-    }
-  }
-};
-
-document.getElementById('inv-surgery').addEventListener('change', e => onSurgerySelected(e.target.value));
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MODULE: PERCENTAGE ROWS (Type A)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const addPercentRow = (date = '', patients = '', charge = '') => {
-  const tbody = document.getElementById('percent-rows');
-  const tr = document.createElement('tr');
-  tr.className = 'border-b border-slate-700/40';
-  tr.innerHTML = `
-    <td class="px-3 py-2"><input type="date" class="p-row-date border border-slate-200 rounded px-2 py-1 text-xs w-32" value="${date}" /></td>
-    <td class="px-3 py-2"><input type="number" class="p-row-pts border border-slate-200 rounded px-2 py-1 text-xs w-20" value="${patients}" placeholder="0" /></td>
-    <td class="px-3 py-2"><input type="number" step="0.01" class="p-row-charge border border-slate-200 rounded px-2 py-1 text-xs w-24" value="${charge}" placeholder="0.00" /></td>
-    <td class="px-3 py-2 p-row-earning text-slate-500 text-xs font-mono">£0.00</td>
-    <td class="px-3 py-2 p-row-due text-brand-700 text-xs font-mono font-bold">£0.00</td>
-    <td class="px-3 py-2"><button class="btn-del-row text-slate-300 hover:text-red-500 transition-colors font-bold text-lg px-2">×</button></td>`;
-  tbody.appendChild(tr);
-  tr.querySelector('.btn-del-row').addEventListener('click', () => { tr.remove(); calcPercentTotals(); });
-  tr.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => { calcPercentRow(tr); calcPercentTotals(); }));
-  
-  if (patients || charge) { calcPercentRow(tr); calcPercentTotals(); }
-};
-
-const calcPercentRow = tr => {
-  const sId = document.getElementById('inv-surgery').value;
-  const s = lsGet(LS.SURGERIES).find(x => x.id === sId);
-  const share = (s?.sharePercent || 35) / 100;
-  
-  const pts = parseFloat(tr.querySelector('.p-row-pts').value) || 0;
-  const charge = parseFloat(tr.querySelector('.p-row-charge').value) || 0;
-  const earning = pts * charge;
-  
-  tr.querySelector('.p-row-earning').textContent = gbp(earning);
-  tr.querySelector('.p-row-due').textContent = gbp(earning * share);
-};
-
-const calcPercentTotals = () => {
-  let totE = 0, totD = 0;
-  document.querySelectorAll('#percent-rows tr').forEach(tr => {
-    totE += parseFloat(tr.querySelector('.p-row-earning').textContent.replace('£','')) || 0;
-    totD += parseFloat(tr.querySelector('.p-row-due').textContent.replace('£','')) || 0;
-  });
-  document.getElementById('total-earning').textContent = gbp(totE);
-  document.getElementById('total-due').textContent = gbp(totD);
-};
-
-document.getElementById('btn-add-row').addEventListener('click', () => addPercentRow());
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MODULE: RATE ROWS (Type B)
-// ─────────────────────────────────────────────────────────────────────────────
-
-const addRateRow = (date = '', start = '08:30', end = '16:30', rate = '') => {
-  const tbody = document.getElementById('rate-rows');
-  const tr = document.createElement('tr');
-  tr.className = 'border-b border-slate-700/40';
-  tr.innerHTML = `
-    <td class="px-3 py-2"><input type="date" class="r-row-date border border-slate-200 rounded px-2 py-1 text-xs w-32" value="${date}" /></td>
-    <td class="px-3 py-2"><input type="time" class="r-row-start border border-slate-200 rounded px-2 py-1 text-xs w-24" value="${start}" /></td>
-    <td class="px-3 py-2"><input type="time" class="r-row-end border border-slate-200 rounded px-2 py-1 text-xs w-24" value="${end}" /></td>
-    <td class="px-3 py-2 r-row-hours text-slate-500 text-xs font-mono">0.00 hrs</td>
-    <td class="px-3 py-2"><input type="number" step="0.01" class="r-row-rate border border-slate-200 rounded px-2 py-1 text-xs w-20" value="${rate}" placeholder="0.00" /></td>
-    <td class="px-3 py-2 r-row-amount text-brand-700 text-xs font-mono font-bold">£0.00</td>
-    <td class="px-3 py-2"><button class="btn-del-session text-slate-300 hover:text-red-500 transition-colors font-bold text-lg px-2">×</button></td>`;
-  tbody.appendChild(tr);
-  tr.querySelector('.btn-del-session').addEventListener('click', () => { tr.remove(); calcRateTotals(); });
-  tr.querySelectorAll('input').forEach(inp => inp.addEventListener('input', () => { calcRateRow(tr); calcRateTotals(); }));
-  
-  // Initial calc if we have values
-  if (rate || start || end) { calcRateRow(tr); calcRateTotals(); }
-};
-
-const calcRateRow = tr => {
-  const start = tr.querySelector('.r-row-start').value;
-  const end = tr.querySelector('.r-row-end').value;
-  const rate = parseFloat(tr.querySelector('.r-row-rate').value) || 0;
-  const hours = timeToHours(start, end);
-  tr.querySelector('.r-row-hours').textContent = `${hours.toFixed(2)} hrs`;
-  tr.querySelector('.r-row-amount').textContent = gbp(hours * rate);
-};
-
-const calcRateTotals = () => {
-  let totH = 0, totA = 0;
-  document.querySelectorAll('#rate-rows tr').forEach(tr => {
-    totH += parseFloat(tr.querySelector('.r-row-hours').textContent) || 0;
-    totA += parseFloat(tr.querySelector('.r-row-amount').textContent.replace('£','')) || 0;
-  });
-  document.getElementById('total-hours').textContent = `${totH.toFixed(2)} hrs`;
-  document.getElementById('total-rate-amount').textContent = gbp(totA);
-};
-
-document.getElementById('btn-add-session').addEventListener('click', () => addRateRow());
-
-// ─────────────────────────────────────────────────────────────────────────────
-const collectInvoiceData = () => {
-  const surgId = document.getElementById('inv-surgery').value;
-  if (!surgId) { alert('Please select a surgery.'); return null; }
-  const num = document.getElementById('inv-number').value.trim();
-  if (!num) { alert('Invoice number is required.'); return null; }
-  
-  const surgery = lsGet(LS.SURGERIES).find(s => s.id === surgId);
-  const type = document.getElementById('inv-type').value;
-  
-  const inv = {
-    id: uid(), number: num, date: document.getElementById('inv-date').value,
-    period: document.getElementById('inv-period').value.trim(),
-    surgery, type, notes: document.getElementById('inv-notes').value.trim(),
-    status: 'finalised', createdAt: new Date().toISOString()
-  };
-
-  if (type === 'percent') {
-    const share = (surgery?.sharePercent || 35);
-    const rows = [];
-    document.querySelectorAll('#percent-rows tr').forEach(tr => {
-      const pts = parseFloat(tr.querySelector('.p-row-pts').value);
-      const charge = parseFloat(tr.querySelector('.p-row-charge').value);
-      if (pts || charge) {
-        rows.push({
-          date: tr.querySelector('.p-row-date').value,
-          patients: pts || 0, charge: charge || 0,
-          earning: (pts || 0) * (charge || 0), due: (pts || 0) * (charge || 0) * (share/100)
-        });
-      }
-    });
-    if (!rows.length) { alert('Add at least one row with data.'); return null; }
-    inv.rows = rows; inv.sharePercent = share;
-    inv.totalEarning = rows.reduce((a, b) => a + b.earning, 0);
-    inv.totalDue = rows.reduce((a, b) => a + b.due, 0);
-  } else {
-    const sessions = [];
-    document.querySelectorAll('#rate-rows tr').forEach(tr => {
-      const r = parseFloat(tr.querySelector('.r-row-rate').value);
-      if (r) {
-        const start = tr.querySelector('.r-row-start').value, end = tr.querySelector('.r-row-end').value;
-        const hrs = timeToHours(start, end);
-        sessions.push({ date: tr.querySelector('.r-row-date').value, start, end, hours: hrs, rate: r, amount: hrs * r });
-      }
-    });
-    if (!sessions.length) { alert('Add at least one session.'); return null; }
-    inv.sessions = sessions;
-    inv.totalHours = sessions.reduce((a, b) => a + b.hours, 0);
-    inv.totalDue = sessions.reduce((a, b) => a + b.amount, 0);
-  }
-  inv.status = inv.status || 'finalised';
-  return inv;
-};
-
-const buildInvoiceHtml = inv => {
-  const fmt = d => d ? new Date(d).toLocaleDateString('en-GB') : '—';
-  let tableHtml = '';
-  
-  if (inv.type === 'percent') {
-    const rows = inv.rows.map(r => `
-      <tr><td>${fmt(r.date)}</td><td>${r.patients}</td><td>${gbp(r.charge)}</td><td>${gbp(r.earning)}</td><td style="color:#023433;font-weight:700;">${gbp(r.due)}</td></tr>`).join('');
-    tableHtml = `
-      <table>
-        <thead><tr><th>Date</th><th>Patients</th><th>Charge</th><th>Earning</th><th>Due (${inv.sharePercent}%)</th></tr></thead>
-        <tbody>${rows}</tbody>
-        <tfoot><tr style="background:#f9f5f3;font-weight:700;"><td colspan="3">TOTAL</td><td>${gbp(inv.totalEarning)}</td><td style="color:#D9A5A0;font-size:16px;">${gbp(inv.totalDue)}</td></tr></tfoot>
-      </table>`;
-  } else {
-    const rows = inv.sessions.map(s => `
-      <tr><td>${fmt(s.date)}</td><td>${s.start} - ${s.end}</td><td>${s.hours.toFixed(2)} hrs</td><td>${gbp(s.rate)}/hr</td><td style="color:#023433;font-weight:700;">${gbp(s.amount)}</td></tr>`).join('');
-    tableHtml = `
-      <table>
-        <thead><tr><th>Date</th><th>Session</th><th>Hours</th><th>Rate</th><th>Amount</th></tr></thead>
-        <tbody>${rows}</tbody>
-        <tfoot><tr style="background:#f9f5f3;font-weight:700;"><td colspan="4">TOTAL PAYMENT DUE</td><td style="color:#D9A5A0;font-size:16px;">${gbp(inv.totalDue)}</td></tr></tfoot>
-      </table>`;
-  }
-
-  const tableStyles = `
-    <style>
-      #invoice-pdf-root table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 11px; }
-      #invoice-pdf-root th { background-color: #023433; color: white; padding: 12px 15px; text-align: left; text-transform: uppercase; letter-spacing: 1px; font-size: 9px; }
-      #invoice-pdf-root td { padding: 12px 15px; border-bottom: 1px solid #f0e9e7; vertical-align: top; }
-      #invoice-pdf-root tr:nth-child(even) { background-color: #fcfaf9; }
-      #invoice-pdf-root tfoot td { border-top: 2px solid #D9A5A0; padding-top: 15px; font-weight: bold; }
-    </style>`;
-
-  return `
-    ${tableStyles}
-    <div id="invoice-pdf-root" style="width:720px;padding:40px;background:#fff;font-family:Inter,sans-serif;color:#111;">
-      <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:3px solid #D9A5A0;padding-bottom:15px;margin-bottom:30px;">
-        <div style="display:flex;align-items:center;gap:15px;">
-          ${BRAND.logoSvg}
-          <div>
-            <h1 style="font-family:'Playfair Display',serif;font-size:26px;color:#023433;margin:0;letter-spacing:1px;line-height:1;">PRISTINE</h1>
-            <p style="font-size:9px;text-transform:uppercase;color:#D9A5A0;letter-spacing:3px;margin:2px 0 0;">Aesthetics & Wellness</p>
-          </div>
-        </div>
-        <div style="text-align:right;">
-          <h2 style="font-family:'Playfair Display',serif;font-size:22px;color:#023433;margin:0;letter-spacing:1px;">INVOICE</h2>
-          <p style="font-size:12px;color:#666;margin:4px 0;">#${inv.number} | ${fmt(inv.date)}</p>
-        </div>
-      </div>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-bottom:30px;">
-        <div>
-          <h4 style="font-size:10px;text-transform:uppercase;color:#D9A5A0;margin-bottom:6px;letter-spacing:1px;">From</h4>
-          <p style="font-weight:700;color:#023433;font-size:14px;margin:0;">${BRAND.name}</p>
-          <p style="font-size:11px;color:#555;margin:2px 0;">${BRAND.address}</p>
-          <p style="font-size:10px;color:#888;margin-top:4px;">${BRAND.ref}</p>
-        </div>
-        <div style="text-align:right;">
-          <h4 style="font-size:10px;text-transform:uppercase;color:#D9A5A0;margin-bottom:6px;letter-spacing:1px;">Invoice To</h4>
-          <p style="font-weight:700;color:#023433;font-size:14px;margin:0;">${inv.surgery.name}</p>
-          <p style="font-size:11px;color:#555;margin:2px 0;">${inv.surgery.address}</p>
-          <p style="font-size:11px;color:#555;font-weight:600;">${inv.period}</p>
-        </div>
-      </div>
-
-      <div style="margin-bottom:30px;">${tableHtml}</div>
+  <!-- EMAIL CLIENT PICKER MODAL -->
+  <div id="email-modal" class="fixed inset-0 bg-brand-900/70 backdrop-blur-xl z-[220] flex items-center justify-center hidden p-6">
+    <div class="bg-white rounded-[3rem] shadow-[0_60px_150px_-30px_rgba(0,0,0,0.6)] w-full max-w-lg p-12 text-center border border-white/30 relative">
+      <button onclick="document.getElementById('email-modal').classList.add('hidden')" class="absolute top-8 right-8 text-slate-300 hover:text-slate-800 transition-colors bg-slate-50 w-10 h-10 rounded-full flex items-center justify-center font-bold">✕</button>
       
-      <div style="background:#fdfaf9;border:1px solid #f2e1df;border-radius:12px;padding:15px 25px;margin-bottom:30px;display:flex;justify-content:space-between;align-items:center;">
-         <div>
-           <h4 style="font-size:10px;text-transform:uppercase;color:#D9A5A0;margin-bottom:5px;letter-spacing:1px;">BACS Details</h4>
-           <p style="font-size:12px;color:#023433;margin:2px 0;"><strong>${BRAND.payee}</strong></p>
-           <p style="font-size:11px;color:#555;margin:0;">${BRAND.bank} · Sort: ${BRAND.sortCode} · Acc: ${BRAND.account}</p>
-         </div>
-         <div style="text-align:right;">
-           <h4 style="font-size:10px;text-transform:uppercase;color:#D9A5A0;margin-bottom:5px;letter-spacing:1px;">Total Due</h4>
-           <p style="font-family:'Playfair Display',serif;font-size:28px;color:#023433;margin:0;font-weight:700;">${gbp(inv.totalDue)}</p>
-         </div>
+      <div class="mb-10">
+        <div class="w-16 h-16 bg-brand-50 text-brand-700 rounded-2xl flex items-center justify-center text-2xl mx-auto mb-6 shadow-inner">✉️</div>
+        <h3 class="text-2xl font-black text-brand-700 mb-2 tracking-tight">Email Invoice</h3>
+        <p class="text-[10px] text-slate-400 uppercase tracking-[0.3em] font-black">Choose your email app</p>
       </div>
-
-      ${inv.notes ? `<div style="font-style:italic;font-size:11px;color:#777;border-left:3px solid #D9A5A0;padding-left:15px;margin-top:20px;">Notes: ${inv.notes}</div>` : ''}
-    </div>`;
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MODULE: PREVIEW & PDF
-// ─────────────────────────────────────────────────────────────────────────────
-
-const showPreview = (data = null) => {
-  const inv = data || collectInvoiceData();
-  if (!inv) return;
-  document.getElementById('invoice-preview').innerHTML = buildInvoiceHtml(inv);
-  const overlay = document.getElementById('modal-overlay');
-  overlay.classList.remove('hidden');
-  overlay.style.pointerEvents = 'auto';
-  document.body.style.overflow = 'hidden';
-  document.body.style.overflow = 'hidden';
-  document.getElementById('btn-finalise').onclick = () => finaliseInvoice(inv);
-  document.getElementById('btn-download-pdf').onclick = e => downloadPdf(inv, e.currentTarget);
-};
-
-const finaliseInvoice = inv => {
-  const list = lsGet(LS.INVOICES);
-  list.unshift(inv);
-  lsSet(LS.INVOICES, list);
-  renderHistory();
-  closeModal();
-  switchTab('history');
-  showConfirm('Invoice Saved! Clear form for next one?', clearInvoiceForm);
-};
-
-const downloadPdf = async (inv, btnEl = null) => {
-  if (typeof html2pdf === 'undefined') {
-    alert('PDF Generator not available. Please wait a moment while it loads.');
-    return;
-  }
-
-  const btn = btnEl || document.getElementById('btn-download-pdf');
-  const oldText = btn ? btn.textContent : 'Download PDF';
-  if (btn) { btn.textContent = '⏳ Downloading...'; btn.disabled = true; }
-
-  try {
-    // 1. Target the already visible preview root
-    // This is the most stable source for html2pdf
-    const root = document.getElementById('invoice-pdf-root');
-    if (!root) throw new Error('Preview document not found.');
-
-    const filename = generateNomenclature(inv);
-    const opt = {
-      margin: 0, 
-      filename: filename, 
-      image: { type: 'jpeg', quality: 1.0 },
-      html2canvas: { scale: 2, useCORS: true, logging: false, width: 720 },
-      jsPDF: { unit: 'px', format: [720, 1018], orientation: 'portrait' }
-    };
-
-    // 2. Direct Download (standard save)
-    await html2pdf().from(root).set(opt).save();
-
-    // 3. Status prompt
-    if (inv.status !== 'sent') {
-      setTimeout(() => {
-        showConfirm(`Invoice ${inv.number} ready! Mark as SENT?`, () => {
-          const all = lsGet(LS.INVOICES);
-          const i = all.findIndex(x => x.id === inv.id);
-          if (i !== -1) { 
-            all[i].status = 'sent'; 
-            lsSet(LS.INVOICES, all); 
-            renderHistory(); 
-          }
-        });
-      }, 600);
-    }
-
-    // 4. Background Archive to server (Silently)
-    const auth = localStorage.getItem(LS.AUTH);
-    html2pdf().from(root).set(opt).outputPdf('blob').then(blob => {
-      fetch(`${API_URL}?type=upload-pdf&name=${filename}`, {
-         method: 'POST',
-         headers: { 'X-Auth': auth || '' },
-         body: blob
-      }).catch(() => {});
-    });
-
-  } catch (err) {
-    console.error('[PDF ERROR]', err);
-    alert('PDF generation failed. Please refresh and try again.');
-  } finally {
-    if (btn) { btn.textContent = oldText; btn.disabled = false; }
-  }
-};
-
-const closeModal = () => {
-  document.getElementById('modal-overlay').classList.add('hidden');
-  document.getElementById('modal-overlay').style.pointerEvents = 'none';
-  document.body.style.overflow = '';
-};
-
-document.getElementById('btn-close-modal').onclick = closeModal;
-document.getElementById('btn-preview').onclick = () => showPreview();
-
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MODULE: DRAFT
-// ─────────────────────────────────────────────────────────────────────────────
-
-document.getElementById('btn-save-draft').addEventListener('click', () => {
-  const inv = collectInvoiceData();
-  if (!inv) return;
-  inv.status = 'draft';
-  inv.id = inv.id || uid();
-  
-  let drafts = lsGet(LS.DRAFT);
-  if (!Array.isArray(drafts)) drafts = [];
-  
-  const idx = drafts.findIndex(d => d.id === inv.id || d.number === inv.number);
-  if (idx !== -1) drafts[idx] = inv;
-  else drafts.unshift(inv);
-  
-  lsSet(LS.DRAFT, drafts);
-  showMsg(document.getElementById('create-msg'), '✅ Draft saved!', 'ok');
-  renderDrafts(); 
-});
-
-/** Load a draft invoice back into the form */
-const loadDraft = inv => {
-  document.getElementById('inv-number').value = inv.number || '';
-  document.getElementById('inv-date').value   = inv.date   || '';
-  document.getElementById('inv-period').value = inv.period || '';
-  document.getElementById('inv-notes').value  = inv.notes  || '';
-
-  if (inv.surgery) {
-    document.getElementById('inv-surgery').value = inv.surgery.id || '';
-  }
-  document.getElementById('inv-type').value = inv.type || 'percent';
-  toggleInvoiceType(inv.type);
-
-  // Clear existing rows
-  document.getElementById('percent-rows').innerHTML = '';
-  document.getElementById('rate-rows').innerHTML    = '';
-
-  if (inv.type === 'percent' && inv.rows) {
-    inv.rows.forEach(r => addPercentRow(r.date, r.patients, r.charge));
-  } else if (inv.type === 'rate' && inv.sessions) {
-    inv.sessions.forEach(s => addRateRow(s.date, s.start, s.end, s.rate));
-  }
-};
-
-const renderStatusBadge = status => {
-  const map = {
-    'draft':     'bg-slate-100 text-slate-600',
-    'finalised': 'bg-blue-50 text-blue-600 border border-blue-100',
-    'sent':      'bg-green-50 text-green-600 border border-green-100',
-    'emailed':   'bg-green-50 text-green-600 border border-green-100' // Alias
-  };
-  const cls = map[status] || 'bg-slate-100 text-slate-400';
-  const label = (status || 'finalised').toUpperCase();
-  return `<span class="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider ${cls}">${label}</span>`;
-};
-
-const clearInvoiceForm = () => {
-  document.getElementById('inv-surgery').value = '';
-  document.getElementById('inv-period').value = '';
-  document.getElementById('inv-notes').value = '';
-  document.getElementById('percent-rows').innerHTML = '';
-  document.getElementById('rate-rows').innerHTML = '';
-  document.getElementById('surgery-info-banner').classList.add('hidden');
-  lsSet(LS.DRAFT, null);
-  const invoices = lsGet(LS.INVOICES);
-  document.getElementById('inv-number').value = `PA-${String(invoices.length + 1).padStart(4, '0')}`;
-  calcPercentTotals(); 
-  calcRateTotals();
-  addPercentRow(); 
-  addRateRow();
-};
-
-document.getElementById('btn-clear').onclick = () => {
-  showConfirm('Clear the current invoice form?', clearInvoiceForm);
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MODULE: HISTORY
-// ─────────────────────────────────────────────────────────────────────────────
-
-const renderHistory = () => {
-  const invoices = lsGet(LS.INVOICES);
-  const list     = document.getElementById('history-list');
-  list.innerHTML = '';
-  if (!invoices.length) { 
-    list.innerHTML = '<p class="p-8 text-slate-400 text-sm italic text-center">No finalised invoices yet.</p>'; 
-  } else {
-    const table = document.createElement('table');
-    table.className = 'w-full text-sm leading-relaxed';
-    table.innerHTML = `
-      <thead>
-        <tr class="text-[10px] uppercase font-bold text-brand-700 bg-brand-50 border-b border-slate-200">
-          <th class="px-6 py-4 text-left w-24">Actions</th>
-          <th class="px-4 py-4 text-left">Invoice #</th>
-          <th class="px-4 py-4 text-left">Surgery</th>
-          <th class="px-4 py-4 text-left font-bold">Total Due</th>
-          <th class="px-4 py-4 text-left">Status</th>
-          <th class="px-4 py-4 text-left">Created</th>
-        </tr>
-      </thead>
-      <tbody id="hist-body"></tbody>`;
-    list.appendChild(table);
-
-    invoices.forEach(inv => {
-      const tr = document.createElement('tr');
-      tr.className = 'hist-row border-b border-slate-100 hover:bg-brand-50/50 transition-colors group';
-      tr.innerHTML = `
-        <td class="px-6 py-4">
-          <div class="flex gap-2 opacity-60 group-hover:opacity-100 transition-opacity">
-            <button onclick="viewHistoryInvoice('${inv.id}')" title="View" class="w-8 h-8 flex items-center justify-center bg-brand-700 text-white rounded-lg shadow-sm hover:scale-110 transition-all">👁</button>
-            <button onclick="editHistoryInvoice('${inv.id}')" title="Edit" class="w-8 h-8 flex items-center justify-center bg-white text-slate-500 rounded-lg shadow-sm border border-slate-200 hover:text-brand-700 hover:border-brand-500 transition-all">✎</button>
-            <button onclick="duplicateHistoryInvoice('${inv.id}')" title="Duplicate/Copy" class="w-8 h-8 flex items-center justify-center bg-white text-slate-500 rounded-lg shadow-sm border border-slate-200 hover:text-green-600 hover:border-green-500 transition-all">⎘</button>
-            <button onclick="emailHistoryInvoice('${inv.id}')" title="Email" class="w-8 h-8 flex items-center justify-center bg-white text-slate-500 rounded-lg shadow-sm border border-slate-200 hover:text-brand-700 hover:border-brand-500 transition-all">✉</button>
-            <button onclick="deleteHistoryInvoice('${inv.id}')" title="Delete" class="w-8 h-8 flex items-center justify-center bg-white text-red-400 rounded-lg border border-red-50 hover:bg-red-50 hover:text-red-600 hover:border-red-100 transition-all">🗑</button>
+      
+      <div class="space-y-6 mb-12 text-left">
+        <div class="grid sm:grid-cols-2 gap-6">
+          <div>
+            <label class="block text-[9px] text-slate-400 font-black uppercase tracking-widest mb-2 px-1">Your Email</label>
+            <input id="email-from" type="email" class="w-full text-[11px] h-11 px-4 bg-slate-50/50 border-slate-100 rounded-xl focus:bg-white focus:ring-4 focus:ring-brand-500/5 transition-all font-bold text-brand-700" />
           </div>
-        </td>
-        <td class="px-4 py-4 font-mono font-bold text-slate-900">${inv.number}</td>
-        <td class="px-4 py-4 font-medium text-slate-700">${escHtml(inv.surgery?.name || '—')}</td>
-        <td class="px-4 py-4 font-bold text-brand-700 text-base">${gbp(inv.totalDue)}</td>
-        <td class="px-4 py-4">${renderStatusBadge(inv.status)}</td>
-        <td class="px-4 py-4 text-slate-400 text-[10px] font-medium">${inv.date ? new Date(inv.date).toLocaleDateString('en-GB') : '—'}</td>`;
-      document.getElementById('hist-body').appendChild(tr);
-    });
-  }
-  renderDrafts();
-};
-
-const renderDrafts = () => {
-  let drafts = lsGet(LS.DRAFT);
-  if (!Array.isArray(drafts)) drafts = (drafts && drafts.id) ? [drafts] : [];
-  
-  const wrap = document.getElementById('drafts-list');
-  wrap.innerHTML = '';
-  if (!drafts.length) { 
-    wrap.innerHTML = '<p class="p-6 text-slate-400 text-sm italic">No saved drafts found.</p>'; 
-    return; 
-  }
-
-  const table = document.createElement('table');
-  table.className = 'w-full text-xs';
-  table.innerHTML = `
-    <thead>
-      <tr class="bg-slate-50 text-slate-500 border-b border-slate-200 text-[10px] uppercase font-bold">
-        <th class="px-6 py-3 text-left w-20">Action</th>
-        <th class="px-4 py-3 text-left">Invoice #</th>
-        <th class="px-4 py-3 text-left">Surgery</th>
-        <th class="px-4 py-3 text-left">Period</th>
-        <th class="px-4 py-3 text-left font-bold text-brand-700">Due</th>
-      </tr>
-    </thead>
-    <tbody id="draft-body"></tbody>`;
-  wrap.appendChild(table);
-
-  drafts.forEach((d, idx) => {
-    const tr = document.createElement('tr');
-    tr.className = 'border-b border-slate-50 hover:bg-slate-50/50 transition-colors';
-    tr.innerHTML = `
-      <td class="px-6 py-3">
-        <div class="flex gap-2">
-          <button onclick="restoreDraftFromList(${idx})" class="bg-brand-500 hover:bg-brand-600 text-white px-2 py-1 rounded text-[10px] uppercase font-bold transition">Restore</button>
-          <button onclick="deleteDraftFromList(${idx})" class="text-red-400 hover:text-red-600 font-bold text-lg">×</button>
+          <div>
+            <label class="block text-[9px] text-slate-400 font-black uppercase tracking-widest mb-2 px-1">Send to Surgery</label>
+            <input id="email-to" type="email" class="w-full text-[11px] h-11 px-4 bg-slate-50/50 border-slate-100 rounded-xl focus:bg-white focus:ring-4 focus:ring-brand-500/5 transition-all font-bold text-brand-700" />
+          </div>
         </div>
-      </td>
-      <td class="px-4 py-3 font-bold text-slate-700">${d.number || '—'}</td>
-      <td class="px-4 py-3 text-slate-600">${escHtml(d.surgery?.name || '—')}</td>
-      <td class="px-4 py-3 text-slate-400 italic">${d.period || '—'}</td>
-      <td class="px-4 py-3 font-bold text-slate-700">${gbp(d.totalDue)}</td>`;
-    document.getElementById('draft-body').appendChild(tr);
-  });
-};
+        <div>
+          <label class="block text-[9px] text-slate-400 font-black uppercase tracking-widest mb-2 px-1">CC Your Email (For your records)</label>
+          <input id="email-cc" type="email" class="w-full text-[11px] h-11 px-4 bg-slate-50/50 border-slate-100 rounded-xl focus:bg-white focus:ring-4 focus:ring-brand-500/5 transition-all font-bold text-brand-700" />
+        </div>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <button id="btn-email-gmail" class="flex flex-col items-center justify-center p-6 bg-slate-50 border border-slate-100 rounded-[2rem] hover:bg-brand-50 hover:border-brand-200 transition-all group shadow-sm hover:translate-y-[-5px]">
+            <span class="text-3xl mb-2 group-hover:scale-125 transition-transform duration-500">📧</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-600">Gmail via Browser</span>
+          </button>
+          <button id="btn-email-mailto" class="flex flex-col items-center justify-center p-6 bg-slate-50 border border-slate-100 rounded-[2rem] hover:bg-brand-50 hover:border-brand-200 transition-all group shadow-sm hover:translate-y-[-5px]">
+            <span class="text-3xl mb-2 group-hover:scale-125 transition-transform duration-500">💻</span>
+            <span class="text-[10px] font-black uppercase tracking-widest text-slate-600">Desktop Mail App</span>
+          </button>
+        </div>
+      </div>
+      <p class="text-[9px] text-slate-300 font-black uppercase tracking-[0.2em] italic">An email draft containing the invoice will be opened automatically.</p>
+    </div>
+  </div>
 
-window.restoreDraftFromList = idx => {
-  let drafts = lsGet(LS.DRAFT);
-  if (!Array.isArray(drafts)) drafts = (drafts && drafts.id) ? [drafts] : [];
-  
-  if (drafts[idx]) {
-    loadDraft(drafts[idx]);
-    switchTab('create');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-};
+  <!-- Master Application Script -->
+  <script type="module" src="js/app.js?v=5"></script>
 
-window.deleteDraftFromList = idx => {
-  showConfirm('Permanently delete this saved draft?', () => {
-    const drafts = lsGet(LS.DRAFT);
-    drafts.splice(idx, 1);
-    lsSet(LS.DRAFT, drafts);
-    renderDrafts();
-  });
-};
-
-window.viewHistoryInvoice = id => {
-  const inv = lsGet(LS.INVOICES).find(i => i.id === id);
-  if (inv) showPreview(inv);
-};
-
-window.editHistoryInvoice = id => {
-  const inv = lsGet(LS.INVOICES).find(x => x.id === id);
-  if (!inv) return;
-  showConfirm('Edit this finalised invoice? This will load it back into the creation form.', () => {
-    loadDraft(inv); 
-    switchTab('create');
-  });
-};
-
-window.duplicateHistoryInvoice = id => {
-  const inv = lsGet(LS.INVOICES).find(x => x.id === id);
-  if (!inv) return;
-  
-  showConfirm('Duplicate this invoice to create a new one? (A new number and today\'s date will be assigned)', () => {
-    const clone = JSON.parse(JSON.stringify(inv));
-    clone.id = uid();
-    // Generate latest sequential number
-    const list = lsGet(LS.INVOICES);
-    clone.number = `PA-${String(list.length + 1).padStart(4, '0')}`;
-    clone.date = new Date().toISOString().split('T')[0];
-    
-    loadDraft(clone);
-    switchTab('create');
-  });
-};
-
-window.emailHistoryInvoice = async id => {
-  const inv = lsGet(LS.INVOICES).find(x => x.id === id);
-  if (!inv) return;
-  
-  // Show a loading feedback
-  const btn = event.currentTarget;
-  const oldText = btn.textContent;
-  btn.textContent = '⏳';
-  btn.disabled = true;
-
-  try {
-    // 1. Generate PDF blob (behind the scenes)
-    const container = document.createElement('div');
-    container.style.position = 'absolute';
-    container.style.left = '-9999px';
-    container.innerHTML = buildInvoiceHtml(inv);
-    document.body.appendChild(container);
-    
-    const root = container.querySelector('#invoice-pdf-root');
-    const opt = { margin: 0, filename: `Inv_${inv.number}.pdf`, image: { type: 'jpeg', quality: 1.0 }, html2canvas: { scale: 1.5, useCORS: true, width: 720 }, jsPDF: { unit: 'px', format: [720, 1018] }};
-    
-    const pdfBlob = await html2pdf().from(root).set(opt).outputPdf('blob');
-    document.body.removeChild(container);
-
-    // 2. Upload to server
-    const auth = localStorage.getItem(LS.AUTH);
-    const fileName = generateNomenclature(inv);
-    const upRes = await fetch(`${API_URL}?type=upload-pdf&name=${fileName}`, {
-       method: 'POST',
-       headers: { 'X-Auth': auth || '' },
-       body: pdfBlob
-    });
-    const upData = await upRes.json();
-    if (!upRes.ok) throw new Error('Upload failed');
-
-    // 3. Open Email with Link
-    let baseUrl = window.location.href.split('?')[0].split('#')[0].replace('index.html','');
-    const cfg = lsGet(LS.CONFIG);
-    if (cfg && cfg.baseUrl) {
-      baseUrl = cfg.baseUrl.endsWith('/') ? cfg.baseUrl : cfg.baseUrl + '/';
-    }
-    
-    const link = `${baseUrl}${upData.url}`;
-    const email = inv.surgery?.email || '';
-    const subject = encodeURIComponent(`Invoice ${inv.number} - Pristine Aesthetics`);
-    const body = encodeURIComponent(`Dear ${inv.surgery?.name || 'Team'},\n\nPlease find your invoice (${inv.number}) for the period ${inv.period || 'as discussed'} at the link below:\n\n🔗 VIEW INVOICE: ${link}\n\nTotal Due: ${gbp(inv.totalDue)}\n\nBest Regards,\nPristine Aesthetics Ltd`);
-    
-    // 4. Update status to SENT
-    inv.status = 'sent';
-    const all = lsGet(LS.INVOICES);
-    const idx = all.findIndex(i => i.id === inv.id);
-    if (idx !== -1) {
-      all[idx].status = 'sent';
-      lsSet(LS.INVOICES, all);
-      renderHistory();
-    }
-
-    window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
-  } catch (err) {
-    alert('Failed to generate sharing link: ' + err.message);
-  } finally {
-    btn.textContent = oldText;
-    btn.disabled = false;
-  }
-};
-
-window.deleteHistoryInvoice = id => {
-  showConfirm('Permanently delete this invoice from history?', () => {
-    const updated = lsGet(LS.INVOICES).filter(i => i.id !== id);
-    lsSet(LS.INVOICES, updated);
-    renderHistory();
-  });
-};
-
-document.getElementById('btn-clear-history').addEventListener('click', () => {
-  showConfirm('Delete ALL invoice history? This cannot be undone.', () => {
-    lsSet(LS.INVOICES, []);
-    renderHistory();
-  });
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// INITIALISE
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MODULE: SEED DEFAULT SURGERIES
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Pre-populates well-known surgeries on first run.
- * Uses name-match to avoid duplicates on subsequent loads.
- */
-const seedSurgeries = () => {
-  const existing = lsGet(LS.SURGERIES);
-  if (existing.length > 0) return;
-  const seeds = [
-    { id: uid(), name: 'Warwick Lodge Dental', address: '44 Canterbury Rd, Herne Bay CT6 5DF', type: 'percent', sharePercent: 35, defaultCharge: 120 },
-    { id: uid(), name: 'Highfield Dental', address: '81 Crofton Road, Orpington BR6 8HU', type: 'rate', defaultRate: 35 }
-  ];
-  lsSet(LS.SURGERIES, seeds);
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MODULE: DAILY LOG
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Show/hide log form fields based on the selected surgery's type,
- * and pre-fill default rates from the surgery record.
- */
-const updateLogFieldVisibility = () => {
-  const surgId = document.getElementById('log-surgery').value;
-  const s = lsGet(LS.SURGERIES).find(x => x.id === surgId);
-  const isPercent = !s || s.type === 'percent';
-
-  // Type A fields
-  document.getElementById('log-field-patients').classList.toggle('hidden', !isPercent);
-  document.getElementById('log-field-charge').classList.toggle('hidden', !isPercent);
-  // Type B fields
-  document.getElementById('log-field-start').classList.toggle('hidden', isPercent);
-  document.getElementById('log-field-end').classList.toggle('hidden', isPercent);
-  document.getElementById('log-field-rate').classList.toggle('hidden', isPercent);
-
-  // Pre-fill defaults from surgery config
-  if (s?.defaultCharge) document.getElementById('log-charge').value = s.defaultCharge;
-  if (s?.defaultRate)   document.getElementById('log-rate').value   = s.defaultRate;
-
-  updateLogCalcPreview();
-};
-
-/** Show a live calculation preview using the surgery's stored share % */
-const updateLogCalcPreview = () => {
-  const surgId  = document.getElementById('log-surgery').value;
-  const s       = lsGet(LS.SURGERIES).find(x => x.id === surgId);
-  const preview = document.getElementById('log-calc-preview');
-  if (!surgId) { preview.classList.add('hidden'); return; }
-
-  if (!s || s.type === 'percent') {
-    const pct    = s?.sharePercent || 35;
-    const pts    = parseFloat(document.getElementById('log-patients').value) || 0;
-    const charge = parseFloat(document.getElementById('log-charge').value)   || 0;
-    const earn   = pts * charge;
-    const due    = earn * (pct / 100);
-    preview.textContent = `Earning: ${gbp(earn)}  →  ${pct}% Due: ${gbp(due)}`;
-  } else {
-    const start = document.getElementById('log-start').value;
-    const end   = document.getElementById('log-end').value;
-    const rate  = parseFloat(document.getElementById('log-rate').value) || 0;
-    const hours = (start && end) ? timeToHours(start, end) : 0;
-    preview.textContent = `Hours: ${hours.toFixed(2)}h  ×  £${rate}/hr  =  ${gbp(hours * rate)}`;
-  }
-  preview.classList.remove('hidden');
-};
-
-/** Wire live-preview on all log inputs */
-['log-patients','log-charge','log-start','log-end','log-rate'].forEach(id => {
-  const el = document.getElementById(id);
-  if (el) el.addEventListener('input', updateLogCalcPreview);
-});
-document.getElementById('log-surgery').addEventListener('change', updateLogFieldVisibility);
-
-/** Save a daily log entry to localStorage */
-const saveLogEntry = () => {
-  const surgId   = document.getElementById('log-surgery').value;
-  const date     = document.getElementById('log-date').value;
-  const notes    = document.getElementById('log-notes').value.trim();
-  const msgEl    = document.getElementById('log-msg');
-
-  if (!surgId) { showMsg(msgEl, 'Please select a surgery.', 'error'); return; }
-  if (!date)   { showMsg(msgEl, 'Please enter a date.',    'error'); return; }
-
-  const s = lsGet(LS.SURGERIES).find(x => x.id === surgId);
-  const entry = { id: uid(), surgeryId: surgId, surgeryName: s?.name || '', date, notes, createdAt: new Date().toISOString() };
-
-  if (!s || s.type === 'percent') {
-    const pct      = s?.sharePercent || 35;
-    entry.type     = 'percent';
-    entry.patients = parseFloat(document.getElementById('log-patients').value) || 0;
-    entry.charge   = parseFloat(document.getElementById('log-charge').value)   || 0;
-    entry.earning  = entry.patients * entry.charge;
-    entry.due      = entry.earning * (pct / 100);
-    entry.sharePercent = pct;
-  } else {
-    entry.type   = 'rate';
-    entry.start  = document.getElementById('log-start').value;
-    entry.end    = document.getElementById('log-end').value;
-    entry.rate   = parseFloat(document.getElementById('log-rate').value) || 0;
-    entry.hours  = (entry.start && entry.end) ? timeToHours(entry.start, entry.end) : 0;
-    entry.amount = entry.hours * entry.rate;
-  }
-
-  const logs = lsGet(LS.LOGS);
-  logs.unshift(entry);
-  lsSet(LS.LOGS, logs);
-  showMsg(msgEl, '✅ Entry saved!', 'ok');
-
-  // Reset date and values (keep surgery selection)
-  document.getElementById('log-date').value     = '';
-  document.getElementById('log-patients').value = '';
-  document.getElementById('log-charge').value   = '';
-  document.getElementById('log-start').value    = '';
-  document.getElementById('log-end').value      = '';
-  document.getElementById('log-notes').value    = '';
-  document.getElementById('log-calc-preview').classList.add('hidden');
-
-  renderLogTable();
-  dbg('log entry saved:', entry);
-};
-
-document.getElementById('btn-save-log').addEventListener('click', saveLogEntry);
-
-/** Render the log entries table with optional filter */
-const renderLogTable = (filterSurgId = '', filterMonth = '') => {
-  let logs = lsGet(LS.LOGS);
-  if (filterSurgId) logs = logs.filter(l => l.surgeryId === filterSurgId);
-  if (filterMonth)  logs = logs.filter(l => l.date && l.date.startsWith(filterMonth));
-
-  const wrap  = document.getElementById('log-table-wrap');
-  wrap.innerHTML = '';
-  if (!logs.length) { wrap.innerHTML = '<p class="p-8 text-slate-400 text-sm">No daily log entries.</p>'; return; }
-
-  const table = document.createElement('table');
-  table.className = 'w-full text-xs text-slate-700';
-  table.innerHTML = `
-    <thead>
-      <tr class="bg-brand-50 text-brand-700 border-b border-slate-200">
-        <th class="px-3 py-3 text-left">Date</th>
-        <th class="px-3 py-3 text-left">Surgery</th>
-        <th class="px-3 py-3 text-left">Work Details</th>
-        <th class="px-3 py-3 text-left font-bold">Due</th>
-        <th class="px-3 py-3 w-12"></th>
-      </tr>
-    </thead>
-    <tbody id="log-tbody"></tbody>`;
-  wrap.appendChild(table);
-
-  const tbody = document.getElementById('log-tbody');
-  logs.forEach(l => {
-    const tr = document.createElement('tr');
-    tr.className = 'border-b border-slate-100 hover:bg-brand-50 transition-colors';
-    const work = l.type === 'percent' ? `${l.patients} pts @ ${gbp(l.charge)}` : `${l.hours.toFixed(2)} hrs @ ${gbp(l.rate)}/hr`;
-    const due = l.type === 'percent' ? l.due : l.amount;
-    tr.innerHTML = `
-      <td class="px-3 py-2">${new Date(l.date).toLocaleDateString('en-GB')}</td>
-      <td class="px-3 py-2 font-medium text-slate-900">${escHtml(l.surgeryName)}</td>
-      <td class="px-3 py-2 font-mono text-slate-500">${work}</td>
-      <td class="px-3 py-2 font-bold text-brand-700">${gbp(due)}</td>
-      <td class="px-3 py-2 text-right">
-        <button onclick="deleteLogEntry('${l.id}')" class="text-slate-300 hover:text-red-500 transition-colors font-bold text-lg px-2">×</button>
-      </td>`;
-    tbody.appendChild(tr);
-  });
-};
-
-window.deleteLogEntry = id => {
-  showConfirm('Delete this log entry?', () => {
-    const all = lsGet(LS.LOGS).filter(x => x.id !== id);
-    lsSet(LS.LOGS, all);
-    renderLogTable();
-  });
-};
-
-// Filter controls
-document.getElementById('btn-apply-log-filter').addEventListener('click', () => {
-  renderLogTable(
-    document.getElementById('log-filter-surgery').value,
-    document.getElementById('log-filter-month').value
-  );
-});
-document.getElementById('btn-clear-log-filter').addEventListener('click', () => {
-  document.getElementById('log-filter-surgery').value = '';
-  document.getElementById('log-filter-month').value   = '';
-  renderLogTable();
-});
-
-/** Populate the log surgery dropdowns from the master list */
-const populateLogDropdowns = surgeries => {
-  ['log-surgery', 'log-filter-surgery'].forEach(selId => {
-    const sel = document.getElementById(selId);
-    const cur = sel.value;
-    // Keep the first default option
-    while (sel.options.length > 1) sel.remove(1);
-    surgeries.forEach(s => {
-      const opt = document.createElement('option');
-      opt.value = s.id;
-      opt.textContent = s.name;
-      sel.appendChild(opt);
-    });
-    if (cur) sel.value = cur;
-  });
-};
-
-// ─────────────────────────────────────────────────────────────────────────────
-// MODULE: IMPORT LOGS → INVOICE
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Imports all matching log entries for the currently selected surgery
- * into the invoice form rows, clearing any existing rows first.
- * @param {string} type  'percent' | 'rate'
- */
-const importLogsToInvoice = type => {
-  const surgId = document.getElementById('inv-surgery').value;
-  if (!surgId) { alert('Please select a surgery first.'); return; }
-
-  const period = document.getElementById('inv-period').value.trim();
-  let logs = lsGet(LS.LOGS).filter(l => l.surgeryId === surgId && l.type === type);
-
-  // If period looks like "Month YYYY" try to filter by that month
-  if (period) {
-    const parsed = new Date(period);
-    if (!isNaN(parsed)) {
-      const ym = `${parsed.getFullYear()}-${String(parsed.getMonth()+1).padStart(2,'0')}`;
-      const filtered = logs.filter(l => l.date && l.date.startsWith(ym));
-      if (filtered.length) logs = filtered;
-    }
-  }
-
-  if (!logs.length) { alert('No matching log entries found for this surgery / period.'); return; }
-
-  if (type === 'percent') {
-    document.getElementById('percent-rows').innerHTML = '';
-    logs.forEach(l => addPercentRow(l.date, l.patients, l.charge));
-  } else {
-    document.getElementById('rate-rows').innerHTML = '';
-    logs.forEach(l => addRateRow(l.date, l.start, l.end, l.rate));
-  }
-  dbg(`Imported ${logs.length} log entries into invoice`);
-};
-
-document.getElementById('btn-import-logs-percent').addEventListener('click', () => importLogsToInvoice('percent'));
-document.getElementById('btn-import-logs-rate').addEventListener('click',    () => importLogsToInvoice('rate'));
-
-// ─────────────────────────────────────────────────────────────────────────────
-// OVERRIDE: renderSurgeries – also refresh log dropdowns
-// ─────────────────────────────────────────────────────────────────────────────
-const _origRenderSurgeries = renderSurgeries;
-const renderSurgeriesAll = () => {
-  _origRenderSurgeries();
-  populateLogDropdowns(lsGet(LS.SURGERIES));
-};
-// Patch references so future saves also update log dropdowns
-document.getElementById('btn-save-surgery').removeEventListener('click', saveSurgery);
-document.getElementById('btn-save-surgery').addEventListener('click', () => {
-  saveSurgery();
-  populateLogDropdowns(lsGet(LS.SURGERIES));
-});
-
-// ─────────────────────────────────────────────────────────────────────────────
-// INIT
-// ─────────────────────────────────────────────────────────────────────────────
-
-/**
- * Bootstrap the app.
- * 1. Load all four data files from api.php (file wins over localStorage cache).
- * 2. Seed default surgeries if the list is empty.
- * 3. Render all UI sections.
- */
-const initApp = async () => {
-  // Set today's date defaults
-  document.getElementById('inv-date').value = new Date().toISOString().split('T')[0];
-  document.getElementById('log-date').value = new Date().toISOString().split('T')[0];
-
-  // Show a subtle loading indicator
-  document.querySelector('main').style.opacity = '0.6';
-
-  // 1. Load all data from JSON files (primes localStorage automatically)
-  await Promise.all([
-    loadFromFile(LS.SURGERIES),
-    loadFromFile(LS.INVOICES),
-    loadFromFile(LS.LOGS),
-    loadFromFile(LS.DRAFT),
-    loadFromFile(LS.CONFIG),
-  ]);
-
-  // Pre-fill config fields
-  const cfg = lsGet(LS.CONFIG);
-  if (cfg && cfg.baseUrl) document.getElementById('set-base-url').value = cfg.baseUrl;
-
-  document.querySelector('main').style.opacity = '1';
-  document.querySelector('main').style.transition = 'opacity .3s';
-
-  // 2. Seed default surgeries on first run (writes back to file)
-  seedSurgeries();
-
-  // 3. Auto-generate an invoice number
-  const invoices = lsGet(LS.INVOICES);
-  const nextNum  = `PA-${String(invoices.length + 1).padStart(4, '0')}`;
-  document.getElementById('inv-number').value = nextNum;
-
-  // 4. Render all UI sections
-  renderSurgeries();
-  populateLogDropdowns(lsGet(LS.SURGERIES));
-  renderHistory();
-  renderLogTable();
-  updateLogFieldVisibility();
-
-  // 5. Load draft if it exists
-  const d = lsGet(LS.DRAFT, null);
-  if (d && d.number && (d.rows?.length || d.sessions?.length)) {
-    showConfirm('A saved draft was found. Load it back into the form?', () => loadDraft(d));
-  }
-
-  // 6. Start with one empty row for convenience
-  addPercentRow();
-  addRateRow();
-
-  dbg('App initialised (file-backed storage active)');
-};
-
-document.getElementById('btn-save-config').addEventListener('click', () => {
-  const baseUrl = document.getElementById('set-base-url').value.trim();
-  const config = { baseUrl };
-  lsSet(LS.CONFIG, config);
-  alert('App configuration saved and synced to server!');
-});
-
-// 7. Initialise only if authenticated
-checkAuth().then(ok => { if (ok) initApp(); });
-
-</script>
 </body>
 </html>
