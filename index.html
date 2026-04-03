@@ -40,6 +40,21 @@
       }
     };
   </script>
+
+  <!-- 2FA API Check Interceptor -->
+  <script>
+    (function() {
+      const originalFetch = window.fetch;
+      window.fetch = async (...args) => {
+        const response = await originalFetch(...args);
+        if (response.status === 403) {
+            window.location.href = 'login.php';
+            return new Promise(() => {}); // Stop subsequent logic
+        }
+        return response;
+      };
+    })();
+  </script>
 </head>
 <body class="min-h-screen">
 
@@ -416,22 +431,31 @@
 
     <!-- VIEW: CURRENT FINANCIAL YEAR -->
     <div id="ins-view-fy" class="ins-view space-y-10">
-        <div class="grid sm:grid-cols-3 gap-6">
+        <div class="grid sm:grid-cols-4 gap-6">
            <div class="glass p-8 rounded-[2rem] bg-brand-900 shadow-2xl text-white">
               <p class="text-[10px] uppercase font-black text-brand-300 tracking-widest mb-2">FY Net Income</p>
-              <h4 id="fy-total-net" class="text-4xl font-black mb-1">£0.00</h4>
-              <p class="text-[8px] text-brand-400 font-bold uppercase tracking-widest">Aggregate earnings for this FY</p>
+              <h4 id="fy-total-net" class="text-2xl font-black mb-1">£0.00</h4>
+              <p class="text-[8px] text-brand-400 font-bold uppercase tracking-widest leading-tight">Post-expense profit this FY</p>
            </div>
-           <div class="glass p-8 rounded-[2rem] bg-white shadow-xl">
+           <div class="glass p-8 rounded-[2rem] bg-green-50 shadow-xl border border-green-100">
+              <p class="text-[10px] uppercase font-black text-green-600 tracking-widest mb-2 font-bold">Settled Fees</p>
+              <h4 id="fy-total-paid" class="text-2xl font-black text-green-700">£0.00</h4>
+              <p class="text-[8px] text-green-500 font-bold uppercase tracking-widest leading-tight">Funds physically received</p>
+           </div>
+           <div class="glass p-8 rounded-[2rem] bg-indigo-50 shadow-xl border border-indigo-100/50">
+              <p class="text-[10px] uppercase font-black text-indigo-500 tracking-widest mb-2 font-bold">Pending Collection</p>
+              <h4 id="fy-total-pending" class="text-2xl font-black text-indigo-700">£0.00</h4>
+              <p class="text-[8px] text-indigo-400 font-bold uppercase tracking-widest leading-tight">Awaiting clinical clearing</p>
+           </div>
+           <div class="glass p-8 rounded-[2rem] bg-white shadow-xl border border-slate-50">
               <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-2">FY Gross Generated</p>
-              <h4 id="fy-total-gross" class="text-3xl font-black text-slate-800">£0.00</h4>
+              <h4 id="fy-total-gross" class="text-2xl font-black text-slate-800">£0.00</h4>
+              <p class="text-[8px] text-slate-400 font-bold uppercase tracking-widest leading-tight">Total pre-share revenue</p>
            </div>
-           <div class="glass p-8 rounded-[2rem] bg-white shadow-xl">
-              <p class="text-[10px] uppercase font-black text-slate-400 tracking-widest mb-2">Avg Hourly Earnings</p>
-              <div class="flex items-end gap-3">
-                 <h4 id="fy-avg-yield" class="text-3xl font-black text-brand-700">£0.00</h4>
-                 <span class="text-[9px] font-black text-slate-400 uppercase mb-2">/hr avg</span>
-              </div>
+           <div class="glass p-8 rounded-[2rem] bg-indigo-900 shadow-2xl text-white">
+              <p class="text-[10px] uppercase font-black text-brand-300 tracking-widest mb-2">Avg Clinical Yield</p>
+              <h4 id="fy-avg-yield" class="text-2xl font-black mb-1">£0.00</h4>
+              <p class="text-[8px] text-brand-400 font-bold uppercase tracking-widest leading-tight">Clinical efficiency (per hr)</p>
            </div>
         </div>
 

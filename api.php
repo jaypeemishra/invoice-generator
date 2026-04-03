@@ -1,4 +1,5 @@
 <?php
+require_once 'security.php';
 /**
  * api.php – Secure JSON file persistence API for Invoice Generator
  */

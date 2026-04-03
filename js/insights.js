@@ -38,8 +38,10 @@ const renderFY = () => {
     const allInvoices = lsGet(LS.INVOICES);
     const data = allInvoices.filter(i => i.date >= range.start && i.date <= range.end);
 
-    const totalNet   = data.reduce((a, b) => a + (b.totalDue || 0), 0);
-    const totalGross = data.reduce((a, b) => a + (b.totalEarning || 0), 0);
+    const totalNet     = data.reduce((a, b) => a + (b.totalDue || 0), 0);
+    const totalPaid    = data.filter(i => i.status === 'paid').reduce((a, b) => a + (b.totalDue || 0), 0);
+    const totalPending = totalNet - totalPaid;
+    const totalGross   = data.reduce((a, b) => a + (b.totalEarning || 0), 0);
     
     // Efficiency: Total Net / Total Hours (if rate based)
     const rateInvs = data.filter(i => i.type === 'rate');
@@ -47,6 +49,8 @@ const renderFY = () => {
     const avgYield = totalHrs > 0 ? (rateInvs.reduce((a, b) => a + (b.totalDue || 0), 0) / totalHrs) : 0;
 
     document.getElementById('fy-total-net').textContent   = gbp(totalNet);
+    document.getElementById('fy-total-paid').textContent  = gbp(totalPaid);
+    document.getElementById('fy-total-pending').textContent = gbp(totalPending);
     document.getElementById('fy-total-gross').textContent = gbp(totalGross);
     document.getElementById('fy-avg-yield').textContent   = gbp(avgYield);
 
